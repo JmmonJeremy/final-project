@@ -21,6 +21,11 @@ export class DocumentService {
     this.maxDocumentId = this.getMaxId();    
   }
 
+  private sortDocuments() {
+    this.documents.sort((a, b) => a.name.localeCompare(b.name));
+    this.documentListChangedEvent.next(this.documents.slice());
+  }
+
   getDocuments(): void {
     this.http.get<Document[]>('https://learning-demo-ce50f-default-rtdb.firebaseio.com/documents.json').subscribe({
       // Success callback
@@ -90,6 +95,7 @@ export class DocumentService {
     this.maxDocumentId++;
     newDocument.id = this.maxDocumentId.toString();
     this.documents.push(newDocument);
+    this.sortDocuments();
     this.documentsListClone = this.documents.slice();
     this.storeDocuments(); 
   }
@@ -104,6 +110,7 @@ export class DocumentService {
     }
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
+    this.sortDocuments();
     this.documentsListClone = this.documents.slice();
     this.storeDocuments();
   }
