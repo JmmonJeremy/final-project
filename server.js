@@ -14,14 +14,16 @@ var index = require('./server/routes/app');
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents'); 
+// Add a variable for the database connection URI (Uniform Resource Identifier)
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cms';
 
 // establish a connection to the mongo database
-mongoose.connect('mongodb://localhost:27017/cms')
+mongoose.connect(mongoURI)
   .then(() => {
-    console.log('Connected to database!');
+    console.log('Connected to MongoDB:', mongoURI);
   })
   .catch((err) => {
-    console.log('Connection failed: ' + err);
+    console.error('MongoDB connection error:', err);
   });
 
 var app = express(); // create an instance of express
