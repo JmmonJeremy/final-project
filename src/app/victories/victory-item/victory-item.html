@@ -1,0 +1,30 @@
+<p>victory-item works!</p>
+<!-- code to display grouped victories by day with victories in victory list & days without victories -->
+<a [routerLink]="getRouteForDay()"
+   routerLinkActive="active"
+   [routerLinkActiveOptions]="{ exact: true }"
+   class="list-group-item clearfix day-row">
+  <div class="day-badge">
+    <h4 class="circle list-group-item-heading">{{ day }}</h4>
+  </div>
+  <span class="day-content" style = "display: inline;">
+    <!-- No victories -->
+    <p *ngIf="victories.length === 0" class="underlined empty-day">
+      No victories recorded.
+    </p>
+    <p class="underlined" *ngFor="let victory of victories; let i = index" style = "display: inline; line-height: 2.5;">   
+      <span 
+         [ngStyle]="{
+           'text-decoration-color': i % 2 === 0 ? 'blue' : 'yellow'
+         }">
+         <span style="color: white; background-color: rgba(69, 93, 246, 0.919); padding: .5rem; border-radius: 5rem;" >
+          <b>{{ victory.number }}</b>
+        </span> 
+        {{ victory.victory }}
+      </span>   
+    </p>  
+    <div class="score-ribbon">
+      <div class="label" style="letter-spacing: 0.25em;" >Daily &nbsp; &nbsp; • &nbsp; &nbsp; Victory &nbsp; &nbsp; • &nbsp; &nbsp; Scoreboard</div>
+    </div>
+  </span>
+</a>

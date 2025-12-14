@@ -1,0 +1,169 @@
+<p>victory-edit works!</p>
+<div class="panel panel-default" style="border: 10px solid rgb(49, 145, 204); outline: 4px solid rgb(49, 145, 204); border-radius: 2rem; background-color:rgb(232, 250, 250);">
+  <div class="panel-body"  >
+    <!-- START Victory Selector Dropdown -->
+    <div class="row" *ngIf="victoriesForDay && victoriesForDay.length > 1" style="margin-bottom:1rem;">
+      <div class="col-sm-12 form-group">
+        <label for="selectVictory" style="color: rgb(71, 169, 230);; font-size: 3rem;">Select Victory to Edit:</label>
+        <select class="form-control"
+                [(ngModel)]="currentVictoryId"
+                name="selectVictory"
+                (change)="onSelectVictory()"
+                style="border: 2px solid rgb(49, 145, 204);">
+          <option *ngFor="let v of victoriesForDay" [value]="v.id">
+           #{{ v.number }} &nbsp; {{ v.victory }}
+          </option>
+        </select>
+      </div>
+    </div>   
+    <!-- END Victory Selector Dropdown --> 
+    <form id="victory-edit" (ngSubmit)="onSubmit(f)" #f="ngForm">
+      <div class="row">
+      <div class="col-sm-12 form-group">
+        <label>
+          Day:&nbsp;&nbsp;
+          <span *ngIf="savedRecently" class="saved-label">Saved</span>
+        </label>
+
+        <div class="day-picker">
+          <label
+            *ngFor="let d of daysOfWeek"
+            class="day-option"
+            [class.active]="victory.day === d"
+            [class.saved-day]="savedRecently && victory.day === d"
+          >
+            <input
+              type="radio"
+              name="day"
+              [value]="d"
+              [(ngModel)]="victory.day"        
+              hidden
+              (ngModelChange)="loadDayVictories()"
+              #day="ngModel"             
+              required         
+            />
+            {{ d }}
+            <div 
+          class="alert alert-danger" 
+          *ngIf="!day.valid && day.touched">
+            Enter a valid victory number.
+          </div>
+
+          </label>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="!victory.day && f.submitted">
+          Please select a day.
+        </div>
+      </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          <label for="number">
+            Number:
+            <span *ngIf="savedRecently" class="saved-label">Saved</span>
+          </label>
+          <input
+            type="text"
+            id="number"
+            class="form-control required"
+            size="120"
+            max="255"
+            name="number"
+            [ngModel]=victory.number
+            [class.saved-input]="savedRecently"
+            #number="ngModel"
+            #numberInput
+            required
+            pattern="^[1-9][0-9]*$"
+            style="border: 2px solid rgb(208, 208, 86);">          
+          <div 
+          class="alert alert-danger" 
+          *ngIf="!number.valid && number.touched">
+            Enter a valid number.
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          <label for="victory">
+            Victory:&nbsp;&nbsp;
+            <span *ngIf="savedRecently" class="saved-label">Saved</span>
+          </label>
+          <input
+            type="text"
+            id="victory"
+            class="form-control invalid"
+            size="150"
+            max="255"
+            name="victory"
+            [ngModel]=victory.victory
+            [class.saved-input]="savedRecently"
+            #victoryField="ngModel"
+            #victoryInput
+            pattern="^[a-zA-Z0-9\s\.,!\?\-\'&quot;:;()&$%/]+$"
+            required
+            style="border: 2px solid rgb(208, 208, 86);">          
+          <div 
+          class="alert alert-danger" 
+          *ngIf="!victoryField.valid && victoryField.touched">
+            Field is required, you cannot leave it blank.
+          </div>
+        </div>
+      </div>             
+      <div class="row">
+        <div class="col-xs-12 btn-toolbar">
+          <div 
+          class="alert alert-danger" 
+          style="margin-left: .5rem; margin-right: -.5rem;"
+          *ngIf="(f.controls['day']?.invalid && f.controls['day']?.touched) ||
+                (number.invalid && number.touched) ||
+                (victoryField.invalid && victoryField.touched)">
+            All fields are required.
+        </div>
+             
+        </div>
+      </div>
+      <!-- Victories List Drag & Drop -->
+      <div class="row">
+        <div class="col-sm-6 form-group">
+          <label for="groupList">Complete Victory List:</label>
+          <!-- Added for adding victories through a drop-down menu - addition -->  
+          <div class="row" style="margin-bottom: 1rem;" >
+            <div class="col-sm-8">
+              <select class="form-control" 
+                style="width: 215px; 
+                padding-left: .75rem;
+                border: 2px solid rgb(49, 145, 204);" 
+                name="selectedVictory" title="Select a victory to add to the group">
+                <option value="">Select ... or &nbsp;&#8665;Drag Below&#8665;</option>                
+              </select>
+            </div>        
+          </div> 
+        </div>
+        <!-- Form Buttons -->
+        <div class="col-sm-6 form-group" style="margin-top: .5rem;">
+          <button type="button" class="btn pull-right" style="background-color: rgb(71, 169, 230); color: white;">Add Victory</button>
+          <button class="btn btn-danger pull-right" type="button" style="margin:0 .5rem" (click)="onClear()">Clear</button> 
+          <button class="btn btn-success pull-right" type="submit" [disabled]="!f.valid" [@pressRelease]="buttonState">Save</button>   
+        </div> 
+      </div>        
+        <!-- START of Drop Zone for Drag and Drop -->
+        <div class="pull-right"style="min-height: 8rem; width: 28rem; text-align: center; border: 2px solid rgb(208, 208, 86); outline: 4px solid rgb(49, 145, 204); outline-offset: 10px; margin: -1rem 1.4rem 3rem; background-color: white; border-radius: 2px;" id="groupList" dndDropzone>            
+          <p class="dragMsg" style="padding: 1rem  0; margin: 0; ">To Add Victories from List<br>Drag Here!</p>
+        </div>
+        <!-- END of Drop Zone for Drag and Drop --> 
+        <!-- Navigation Buttons -->
+        <div class="row">
+          <div class="col-xs-12 btn-toolbar pull-right">        
+            <a class="btn btn-warning pull-right" [routerLink]="['/victories/day', victory.day]">Back</a>   
+            <a class="btn btn-success pull-right" [routerLink]="['/victories']">Close</a> 
+          </div>
+        </div>
+
+    </form>    
+  </div>
+</div>

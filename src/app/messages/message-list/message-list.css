@@ -6,3 +6,205 @@ font-weight: bold;
 padding-left: 1rem;
 padding-right: 1rem;
 }
+
+/* Victory Planner Styling */
+  :root{
+    --page-bg: #fff;
+    --accent-blue: #9ed0f6;
+    --accent-yellow: #fff39b;
+    --badge-bg: #1b88c9;
+    --badge-text: #fff;
+    --ribbon-dark: #1a1a1a;
+    --ribbon-accent: #b6d7ff;
+    --text: #111;
+    --line-height: 32px; /* distance between ruled lines */
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--text);
+    background:#fafafa;
+  }
+
+  .page{
+    max-width:980px;
+    margin:24px auto;
+    background:var(--page-bg);
+    padding:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.06);
+    border-radius:6px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:12px;
+  }
+  header .envelope {
+    width:56px;height:28px;border-radius:4px;border:2px solid #333; display:flex; align-items:center; justify-content:center;
+  }
+  header h1{
+    margin:0;font-size:20px;
+  }
+
+  form.week {
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  /* Each day's row */
+  .day-row{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+
+  /* Left circular day badge */
+  .day-badge{
+    flex: 0 0 72px;
+    width:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .day-badge .circle{
+    width:66px;height:66px;border-radius:50%;
+    background:linear-gradient(180deg,#2a93d0 0%, #166a9a 100%);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--badge-text); font-weight:700;
+    box-shadow:0 3px 8px rgba(0,0,0,0.18);
+    font-size:16px;
+    text-shadow:0 1px 0 rgba(0,0,0,0.25);
+  }
+
+  /* The editable "lined" area */
+  .day-content{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  /* textarea styled with ruled lines via repeating-linear-gradient */
+  textarea.ruled{
+    width:100%;
+    resize:vertical;
+    min-height: calc(var(--line-height) * 3 + 12px); /* show at least 3 lines */
+    padding:8px 10px;
+    border:1px solid #cfcfcf;
+    border-radius:4px;
+    font-size:15px;
+    line-height:1.2;
+    font-family:inherit;
+    color:var(--text);
+    /* the magic: background lines - transparent stripe then colored thin rule */
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--line-height) - 1px),
+        rgba(0,0,0,0.06) calc(var(--line-height) - 1px),
+        rgba(0,0,0,0.06) calc(var(--line-height))
+      );
+    background-size: auto;
+    background-attachment: local;
+    box-shadow:none;
+  }
+
+  /* alternate days use a yellow ruled background */
+  .day-row:nth-child(even) textarea.ruled{
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--line-height) - 1px),
+        rgba(0,0,0,0.06) calc(var(--line-height) - 1px),
+        rgba(0,0,0,0.06) calc(var(--line-height))
+      ),
+      linear-gradient(180deg, rgba(255,250,210,0.55), rgba(255,250,210,0.55));
+    /* overlay a subtle yellow tint */
+  }
+
+  /* Slim ribbon / scoreboard below the textarea */
+  .score-ribbon{
+    position:relative;
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 12px;
+    font-size:13px;
+    color: #fff;
+    background:linear-gradient(90deg,#222 0%, #111 60%, #1a1a1a 100%);
+    border-radius:4px;
+    margin-top:6px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.12) inset;
+  }
+
+  .score-ribbon .label{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    opacity:0.95;
+  }
+
+  .score-ribbon .scorebox{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .score-ribbon input[type="number"]{
+    width:64px;
+    padding:6px 8px;
+    border-radius:3px;
+    border:0;
+    font-weight:700;
+    text-align:center;
+  }
+
+  /* little triangular ribbon ends using pseudo elements */
+  .score-ribbon::before,
+  .score-ribbon::after{
+    content:"";
+    position:absolute;
+    top:0;
+    width:18px;height:100%;
+    transform:skewX(-18deg);
+    background:linear-gradient(180deg,#2a74a0,#173a57);
+  }
+  .score-ribbon::before{
+    left:-10px;
+    border-top-left-radius:4px;
+    border-bottom-left-radius:4px;
+  }
+  .score-ribbon::after{
+    right:-10px;
+    transform:skewX(18deg);
+    border-top-right-radius:4px;
+    border-bottom-right-radius:4px;
+  }
+
+  /* footer */
+  footer{
+    margin-top:18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    justify-content:center;
+    padding-top:14px;
+    border-top:1px dashed #ddd;
+  }
+  footer .icon{ font-size:22px; opacity:0.9 }
+
+  /* Responsive tweaks */
+  @media (max-width:720px){
+    .day-row{ flex-direction:row; gap:10px; align-items:flex-start; }
+    .day-badge{ flex:0 0 56px; }
+  }

@@ -14,8 +14,9 @@ var index = require('./server/routes/app');
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents'); 
-// Add a variable for the database connection URI (Uniform Resource Identifier)
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cms';
+const victoryRoutes = require('./server/routes/victories'); // Victory Planner Code 
+// Add a variable for the database connection URI (Uniform Resource Identifier) 
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/final-project'; // Victory Planner Code
 
 // establish a connection to the mongo database
 mongoose.connect(mongoURI)
@@ -62,6 +63,7 @@ app.use('/', index);
 app.use('/api/messages', messageRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/documents', documentsRoutes);
+app.use('/api/victories', victoryRoutes); // Victory Planner Code
 
 // Tell express to map all other non-defined routes back to the index page
 app.get(/^\/(?!api).*/, (req, res) => {

@@ -3,6 +3,7 @@ var Sequence = require('../models/sequence');
 var maxDocumentId;
 var maxMessageId;
 var maxContactId;
+var maxVictoryId; // Victory Planner Code 
 var sequenceId = null;
 
 function SequenceGenerator() {
@@ -13,6 +14,7 @@ function SequenceGenerator() {
       maxDocumentId = sequence.maxDocumentId;
       maxMessageId = sequence.maxMessageId;
       maxContactId = sequence.maxContactId;
+      maxVictoryId = sequence.maxVictoryId; // Victory Planner Code 
     })
     .catch(function(err) {
       if (err) {
@@ -42,6 +44,11 @@ SequenceGenerator.prototype.nextId = function(collectionType) {
       maxContactId++;
       updateObject = {maxContactId: maxContactId};
       nextId = maxContactId;
+      break;
+      case 'victories':
+      maxVictoryId++;
+      updateObject = {maxVictoryId: maxVictoryId};
+      nextId = maxVictoryId;
       break;
     default:
       return -1;

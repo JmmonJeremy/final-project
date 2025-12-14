@@ -6,6 +6,9 @@ import { Message } from '../message.model';
 import { ContactService } from '../../contacts/contact.service';
 import { Contact } from '../../contacts/contact.model';
 
+// Victory Planner
+import { Victory } from '../message.model';
+
 @Component({
   selector: 'cms-message-item',
   standalone: false,

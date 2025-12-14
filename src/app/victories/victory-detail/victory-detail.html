@@ -1,0 +1,49 @@
+<p>victory-detail works!</p>
+<div class="victory-detail-wrapper panel panel-default">  
+  <!-- Sky Background -->
+  <div class="sky-background">
+    <!-- Day Header | Scoreboard Header | -->     
+    <h2 class="victory-day-heading page-header">{{ selectedDay }}</h2>
+    <h1 class="daily-victory-title ">Daily Victory</h1>
+    <h2 class="scoreboard-title page-header">SCOREBOARD</h2>
+   
+  </div>
+  <!-- Scoreboard Header -->
+  <div class="scoreboard-header">
+    <img src="/assets/images/scoreboard.jpg" class="scoreboard-image" alt="scoreboard" />
+  </div>
+  <!-- All victories for the selected day -->
+  <div class="victory-detail-box" *ngIf="victoriesForDay.length > 0">
+    <h3 class="victory-list-title">🏅<u>Recorded Victories:</u></h3>
+    <div *ngFor="let v of victoriesForDay; let i = index" class="victory-line">
+      <label class="victory-select">
+        <input 
+          type="checkbox" 
+          (change)="toggleSelection(v)"
+          [checked]="selectedVictoryIds.includes(v.id)"
+        />
+        <p class="victory-text">
+          <span style="color: white; background-color: rgba(69, 93, 246, 0.919); padding: .5rem; border-radius: 5rem;" >
+            <strong>{{ v.number }}</strong> 
+          </span>
+          &nbsp;{{ v.victory }}        
+        </p>
+      </label>
+    </div>
+  </div>
+  <p class="directions" >Start by Selecting Victories to Remove &nbsp; 
+    <span style="font-size: 5rem;">𒑰</span>
+     &nbsp; Click Edit to move to Additions Form</p>
+  <!-- Buttons -->
+  <div class="victory-actions">
+    <a (click)="onDelete()" class="btn btn-danger">Delete</a>
+    <a [routerLink]="getEditRoute()" class="btn btn-primary">Edit</a>    
+    <button class="btn btn-success" type="button" (click)="onClose()">Close</button> 
+  </div>
+  <!-- Select & Deselect All -->
+  <div class="select-buttons">
+    <button class="btn btn-info btn-select-all" (click)="selectAll()">Select All</button>
+    <button class="btn btn-warning btn-deselect-all" (click)="deselectAll()">Deselect All</button>
+  </div>
+</div>
+

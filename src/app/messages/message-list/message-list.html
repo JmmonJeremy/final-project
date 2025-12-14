@@ -19,3 +19,159 @@
       </div>
    </div>
 </div>
+<!-- Victory Planner HTML -->
+<div class="page" role="main">
+   <header>
+      <div class="envelope" aria-hidden="true">✉️</div>
+      <h1>Weekly Victories — Fill & Track</h1>
+   </header>
+
+   <form class="week" id="victoryForm" autocomplete="off" onsubmit="handleSubmit(event)">
+   <!-- Day rows -->
+   <script>
+      // We'll dynamically render days for brevity (but HTML is fully static-friendly)
+   </script>
+
+   <!-- static markup for all 7 days -->
+   <div class="day-row" data-day="Sun">
+      <div class="day-badge">
+         <div class="circle">Sun</div>
+      </div>
+      <div class="day-content">
+         <label class="sr-only" for="sunNotes">Sunday entries</label>
+         <textarea id="sunNotes" name="sunNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon" aria-hidden="false">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="sunScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="sunScore" name="sunScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Mon">
+      <div class="day-badge">
+         <div class="circle">Mon</div>
+      </div>
+      <div class="day-content">
+         <textarea id="monNotes" name="monNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="monScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="monScore" name="monScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Tues">
+      <div class="day-badge">
+         <div class="circle">Tues</div>
+      </div>
+      <div class="day-content">
+         <textarea id="tueNotes" name="tueNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="tueScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="tueScore" name="tueScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Wed">
+      <div class="day-badge">
+         <div class="circle">Wed</div>
+      </div>
+      <div class="day-content">
+         <textarea id="wedNotes" name="wedNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="wedScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="wedScore" name="wedScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Thurs">
+      <div class="day-badge">
+         <div class="circle">Thurs</div>
+      </div>
+      <div class="day-content">
+         <textarea id="thuNotes" name="thuNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="thuScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="thuScore" name="thuScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Fri">
+      <div class="day-badge">
+         <div class="circle">Fri</div>
+      </div>
+      <div class="day-content">
+         <textarea id="friNotes" name="friNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="friScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="friScore" name="friScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="day-row" data-day="Sat">
+      <div class="day-badge">
+         <div class="circle">Sat</div>
+      </div>
+      <div class="day-content">
+         <textarea id="satNotes" name="satNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+         <div class="score-ribbon">
+         <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+         <div class="scorebox">
+            <label for="satScore" style="color:#fff;font-weight:600;">Score</label>
+            <input id="satScore" name="satScore" type="number" min="0" max="999" value="0" />
+         </div>
+         </div>
+      </div>
+   </div>
+
+   <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+      <button type="reset" style="padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fff">Reset</button>
+      <button type="submit" style="padding:8px 12px;border-radius:6px;border:0;background:#1b88c9;color:#fff">Save</button>
+   </div>
+
+   </form>
+
+   <footer>
+      <div class="icon">📊</div>
+      <div style="font-size:20px;font-weight:700">Score Points where they really Count!!</div>
+      <div class="icon">🏆</div>
+   </footer>
+
+</div>
+  
+  <!-- Not sure what this does or if needed (doesn't affect display) -->
+<script>
+  function handleSubmit(e){
+    e.preventDefault();
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form).entries());
+    // For demo we'll show the JSON in a new tab (in real app you'd send to server)
+    const pretty = JSON.stringify(data, null, 2);
+    const w = window.open("");
+    w.document.body.style.whiteSpace = "pre";
+    w.document.body.style.fontFamily = "monospace";
+    w.document.body.textContent = pretty;
+  }
+</script>

@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { DndModule } from 'ngx-drag-drop';
 import { provideHttpClient } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { App } from './app';
 import { Header } from './header';
@@ -22,6 +23,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { DocumentEdit } from './documents/document-edit/document-edit';
 import { ContactEdit } from './contacts/contact-edit/contact-edit';
 import { ContactsFilterPipe } from './contacts/contacts-filter-pipe';
+import { Victories } from './victories/victories';
+import { VictoryDetail } from './victories/victory-detail/victory-detail';
+import { VictoryEdit } from './victories/victory-edit/victory-edit';
+import { VictoryItem } from './victories/victory-item/victory-item';
+import { VictoryList } from './victories/victory-list/victory-list';
+import { VictoriesFilterPipe } from './victories/victories-filter-pipe';
 
 @NgModule({
   declarations: [
@@ -41,13 +48,20 @@ import { ContactsFilterPipe } from './contacts/contacts-filter-pipe';
     DropdownDirective,
     DocumentEdit,
     ContactEdit,
-    ContactsFilterPipe,   
+    ContactsFilterPipe,
+    Victories,
+    VictoryDetail,
+    VictoryEdit,
+    VictoryItem,
+    VictoryList,
+    VictoriesFilterPipe   
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    DndModule
+    DndModule,
+    BrowserAnimationsModule,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

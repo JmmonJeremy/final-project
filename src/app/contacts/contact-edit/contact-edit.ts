@@ -33,10 +33,12 @@ export class ContactEdit implements OnInit {
     private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    console.log("HELLO!!!")
     // 1. Wait for contact list to load
     this.subscription = this.contactService.contactListChangedEvent.subscribe(
       (contactList: Contact[]) => {
         this.availableContacts = contactList;
+        console.log("HELLO2!!!")
 
         // 2. NOW safe to read route params and set contact
         this.paramsSubscription = this.route.params.subscribe((params: Params) => {

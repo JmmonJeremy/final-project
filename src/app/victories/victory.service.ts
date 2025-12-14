@@ -3,61 +3,42 @@ import { Subject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
-import { Message } from './message.model';
-
-// Victory Planner
-import { Victory } from './message.model';
+import { Victory } from './victory.model';
+import { DAYS_OF_WEEK } from '../shared/constants';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MessageService {
-  messageChangedEvent = new Subject<Message[]>();
-  messages: Message[] = [];
-  maxMessageId: number;
-
-  // Victory Planner
+export class VictoryService {
   victoryChangedEvent = new Subject<Victory[]>();
+  victorySelectedEvent = new EventEmitter<Victory>();
   victories: Victory[] = [];
   maxVictoryId: number;
+ 
 
   constructor(private http: HttpClient) { }
 
-  private sortAndSend() {
-    this.messages.sort((a, b) => Number(a.id) - Number(b.id));
-    this.messageChangedEvent.next(this.messages.slice());
-  }
-
-  // Victory Planner
   private sortThenSend() {
-    this.victories.sort((a, b) => Number(a.number) - Number(b.number));
+    this.victories.sort((a, b) => {
+      const dayDiff = 
+        DAYS_OF_WEEK.indexOf(a.day) - DAYS_OF_WEEK.indexOf(b.day);
+      if (dayDiff !== 0) return dayDiff;
+      return Number(a.number) - Number(b.number);
+    });
+
     this.victoryChangedEvent.next(this.victories.slice());
   }
 
-  getMessages(): void {
-    this.http.get<{ note: string, messages: Message[] }>(`${environment.apiUrl}/messages`).subscribe({
-      // Success callback
-      next: (response) => {        
-        // Filter out nulls or malformed messages
-        this.messages = (response.messages || []).filter(m => m && m.id && m.subject && m.msgText);
-        console.log('Messages loaded from MongoDB:', this.messages);        
-        this.maxMessageId = this.getMaxId();
-        // Safe sort by id
-        this.sortAndSend();
-      },
-      // Error callback
-      error: (error: any) => {
-        console.error('Error loading messages:', error);
-      }
-    });     
-  }
-
-  // Victory Planner
   getVictories(): void {
     this.http.get<{ message: string, victories: Victory[] }>(`${environment.apiUrl}/victories`).subscribe({
       // Success callback
       next: (response) => {        
         this.victories = response.victories;
+        console.log("Raw victory from server:", response.victories[0]);
+for (const key of Object.keys(response.victories[0])) {
+  console.log("KEY:", key, "TYPE:", typeof response.victories[0][key]);
+}
+
         console.log('Victories loaded:', this.victories);
         this.maxVictoryId = this.getMaxVId();
         this.sortThenSend();
@@ -68,17 +49,7 @@ export class MessageService {
       }
     });     
   }
-    
-  getMessage(id: string): Message {     
-    for (let message of this.messages) {
-      if (message.id === id) {
-        return message;
-      }
-    }
-    return null;
-  }
 
-  // Victory Planner
   getVictory(id: string): Victory {     
     for (let victory of this.victories) {
       if (victory.id === id) {
@@ -86,20 +57,8 @@ export class MessageService {
       }
     }
     return null;
-  }  
-
-  getMaxId() : number {
-    let maxId = 0;
-    for (const message of this.messages) {
-      const currentId = parseInt(message.id);
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    }
-    return maxId;
   }
-
-  // Victory Planner
+    
   getMaxVId(): number {
     let maxId = 0;
     for (const victory of this.victories) {
@@ -111,27 +70,11 @@ export class MessageService {
     return maxId;
   }
 
-  addMessage(message: Message) {
-    if (!message) {
-      return;
-    }
-    // make sure id of the new Message is empty
-    message.id = '';
-    const headers = new HttpHeaders({'Content-Type': 'application/json'});
-    // add to database
-    this.http.post<{ note: string, message: Message }>(`${environment.apiUrl}/messages`,
-      message,
-      { headers: headers })
-      .subscribe(
-        (responseData) => {
-          // add new message to messages
-          this.messages.push(responseData.message);
-          this.sortAndSend();
-        }
-      );
+  getVictoriesByDay(day: string): Victory[] {
+    if (!this.victories || this.victories.length === 0) return [];
+    return this.victories.filter(v => v.day === day);
   }
-  
-  // Victory Planner
+
   addVictory(victory: Victory) {
     if (!victory) {
       return;
@@ -152,7 +95,6 @@ export class MessageService {
       );
   }
 
-  // Victory Planner
   updateVictory(originalVictory: Victory, newVictory: Victory) {
     if (!originalVictory || !newVictory) {
       return;
@@ -176,7 +118,6 @@ export class MessageService {
       );
   }
 
- // Victory Planner
   deleteVictory(victory: Victory) {
     if (!victory) {
         return;
@@ -194,5 +135,4 @@ export class MessageService {
         }
       );
   }
- 
 }

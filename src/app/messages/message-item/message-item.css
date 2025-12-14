@@ -12,3 +12,200 @@ margin-top: .25rem;
 margin-left: 1rem;
 font-size: 1.5rem;
 }
+
+/* Victory Planner Styling */
+:root{
+    --page-bg: #fff;
+    --accent-blue: #9ed0f6;      /* light blue background tint */
+    --line-blue: #1b88c9;        /* blue underline */
+    --accent-yellow: #fff7b8;    /* light yellow tint */
+    --line-yellow: #f6d852;      /* yellow underline */
+    --badge-bg: #1b88c9;
+    --badge-text: #fff;
+    --ribbon-dark: #1a1a1a;
+    --text: #111;
+    --line-height: 32px;
+    --ruled-opacity: 0.06;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--text);
+    background:#fafafa;
+  }
+
+  .page{
+    max-width:1100px;
+    margin:24px auto;
+    background:var(--page-bg);
+    padding:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.06);
+    border-radius:6px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:12px;
+  }
+  header h1{
+    margin:0;font-size:20px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 92px 1fr 360px; /* badge | input | output */
+    gap: 14px;
+    align-items:start;
+  }
+
+  .form {
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .day-row{
+    display: contents; /* using grid parent to place children */
+  }
+
+  .day-badge{
+    grid-column: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .day-badge .circle{
+    width:66px;height:66px;border-radius:50%;
+    background:linear-gradient(180deg,#2a93d0 0%, #166a9a 100%);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--badge-text); font-weight:700;
+    box-shadow:0 3px 8px rgba(0,0,0,0.18);
+    font-size:14px;
+    text-shadow:0 1px 0 rgba(0,0,0,0.25);
+  }
+
+  .input-cell{
+    grid-column: 2;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  textarea.ruled{
+    width:100%;
+    resize:vertical;
+    min-height: calc(var(--line-height) * 3 + 12px);
+    padding:8px 10px;
+    border:1px solid #cfcfcf;
+    border-radius:4px;
+    font-size:15px;
+    line-height:1.2;
+    font-family:inherit;
+    color:var(--text);
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height))
+      );
+    background-attachment: local;
+  }
+
+  /* Slight yellow tint on even rows in the input column */
+  .day-row:nth-of-type(even) .input-cell textarea.ruled{
+    background-image:
+      linear-gradient(180deg, rgba(255,250,210,0.55), rgba(255,250,210,0.55)),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height))
+      );
+  }
+
+  .output-cell{
+    grid-column: 3;
+    background: #fff;
+    border-radius:6px;
+    border:1px solid #eee;
+    padding:12px;
+    min-height: 88px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  /* The visual output lines area */
+  .output-lines {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .output-line {
+    padding:8px 6px;
+    min-height: calc(var(--line-height) - 6px);
+    /* show ruled background */
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height) - 1px),
+        rgba(0,0,0,var(--ruled-opacity)) calc(var(--line-height))
+      );
+  }
+
+  /* Underline for the entire output area per-day */
+  .underlined {
+    display:block;
+    padding-bottom:6px;
+    border-bottom:4px solid var(--line-blue); /* default blue */
+    transition: border-color .2s ease;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+
+  /* day index based coloring - start blue for day 1 (Sun), yellow for day 2 (Mon), alternate... */
+  .output-cell[data-day-index="1"] .underlined { border-bottom-color: var(--line-blue); background: var(--accent-blue); }
+  .output-cell[data-day-index="2"] .underlined { border-bottom-color: var(--line-yellow); background: var(--accent-yellow); }
+  .output-cell[data-day-index="3"] .underlined { border-bottom-color: var(--line-blue); background: var(--accent-blue); }
+  .output-cell[data-day-index="4"] .underlined { border-bottom-color: var(--line-yellow); background: var(--accent-yellow); }
+  .output-cell[data-day-index="5"] .underlined { border-bottom-color: var(--line-blue); background: var(--accent-blue); }
+  .output-cell[data-day-index="6"] .underlined { border-bottom-color: var(--line-yellow); background: var(--accent-yellow); }
+  .output-cell[data-day-index="7"] .underlined { border-bottom-color: var(--line-blue); background: var(--accent-blue); }
+
+  /* small label area */
+  .output-header {
+    font-weight:700;
+    margin-bottom:6px;
+    font-size:13px;
+  }
+
+  /* buttons */
+  .controls {
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-top:10px;
+  }
+  button {
+    padding:8px 12px;
+    border-radius:6px;
+    border:0;
+    cursor:pointer;
+  }
+  button.save { background:#1b88c9;color:#fff }
+  button.reset { background:#fff;border:1px solid #ccc;color:#111 }
+
+  @media (max-width:980px){
+    .grid{
+      grid-template-columns: 72px 1fr; /* hide output column under inputs on small screens */
+    }
+    .output-cell{ grid-column: 1 / -1; order: 99; }
+  }

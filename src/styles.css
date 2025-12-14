@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+/* Victory Planner Styling */
+:root{
+  --page-bg: #fff;
+  --line-blue: #1b88c9;        /* blue underline */
+  --line-yellow: #f6d852;      /* yellow underline */
+  --accent-blue: #9ed0f6;
+  --accent-yellow: #fff39b;
+  --badge-bg: #1b88c9;
+  --badge-text: #fff;
+  --ribbon-dark: #1a1a1a;
+  --ribbon-accent: #b6d7ff;
+  --text: #111;
+  --line-height: 32px; /* distance between ruled lines */
+}
+
+body {
+  background-color: rgb(210, 210, 210); 
+}

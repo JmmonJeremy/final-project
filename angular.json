@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "cms-10a-phase10": {
+    "final-project": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -76,10 +76,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "cms-10a-phase10:build:production"
+              "buildTarget": "final-project:build:production"
             },
             "development": {
-              "buildTarget": "cms-10a-phase10:build:development"
+              "buildTarget": "final-project:build:development"
             }
           },
           "defaultConfiguration": "development"

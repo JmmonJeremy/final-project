@@ -1,0 +1,136 @@
+.required.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+.invalid.ng-invalid.ng-dirty {
+  border: 1px solid red;
+}
+
+.pad-left-right{
+  padding-left:.1rem;
+}
+
+.deleteButton {
+  margin-top: 1.5rem;
+  margin-left: -1.2rem;
+  width: 3.4rem;
+}
+
+.buttonDiv {
+  margin-top: 1.5rem;
+}
+
+.groupDiv {
+  min-height: 6rem;
+  border: solid thin lightgrey;
+}
+
+.dragMsg {
+  font-size: 2rem;
+  color: darkgrey;
+  margin-left: 3rem;
+}
+
+/* SAVE TEXT EFFECTS */
+/* Label row layout */
+.label-row {
+  display: flex;
+  align-items: center; 
+}
+
+/* Saved indicator */
+.saved-label {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 0.85em;
+  opacity: 0;
+  animation: savedFade 2s ease forwards;
+  margin-left: 2rem;
+}
+
+/* Input highlight */
+.saved-input {
+  background-color: #e6f7ea !important;
+  border-color: #5cb85c !important;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* Fade animation */
+@keyframes savedFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+
+.day-picker {
+  display: flex;
+  flex-direction: row;   /* LEFT → RIGHT */
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.day-option {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid rgb(208, 208, 86);
+  border-radius: 999px;
+  cursor: pointer;
+  background-color: white;
+  color: #333;
+  font-size: 1.6rem;
+  transition: all 0.2s ease;
+  user-select: none;
+  width: 7rem;
+  text-align: center;
+}
+
+/* Day saved highlight */
+.saved-day {
+  background-color: #5cb85c !important;   /* Bootstrap green */
+  color: white;
+  outline: 4px solid rgb(208, 208, 86);   /* Your yellow */
+  outline-offset: 2px;
+  border-color: #5cb85c;
+  animation: daySavedPulse 2s ease forwards;
+}
+
+@keyframes daySavedPulse {
+  0% {
+    background-color: #e6f7ea;
+    transform: scale(1);
+  }
+  20% {
+    background-color: #5cb85c;
+    transform: scale(1.05);
+  }
+  85% {
+    background-color: #5cb85c;
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: rgb(49, 145, 204); /* your active blue */
+    transform: scale(1);
+  }
+}
+
+.day-option:hover {
+  background-color: rgba(49, 145, 204, 0.1);
+}
+
+.day-option.active {
+  outline: 4px solid rgb(208, 208, 86);
+  background-color: rgb(49, 145, 204);
+  color: white;
+  border-color: rgb(49, 145, 204);
+}

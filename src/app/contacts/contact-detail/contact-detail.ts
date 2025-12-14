@@ -39,7 +39,7 @@ export class ContactDetail implements OnInit, OnDestroy {
             }
         } 
       );
-  }
+  } 
 
   onDelete() {
     if (!this.contact) return;

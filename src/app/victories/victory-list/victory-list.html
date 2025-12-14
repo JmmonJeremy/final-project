@@ -1,0 +1,35 @@
+<div class="panel panel-default">
+  <div class="panel-heading clearfix">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="row">
+              <h3 class="title pad-left-right" style="margin: 2rem 0 .25rem 1.5rem; font-weight: bold; font-size: 2.5rem;">Victories</h3>
+            </div>
+            <div class="row">
+              <div class="input-group pull-left pad-left-right col-xs-7" style="margin-left: 1.5rem">
+                <input type="text" class="form-control" placeholder="Enter a search value" (keyup)="search(searchBox.value)" #searchBox>
+                <span class="input-group-addon" (click)="search(searchBox.value)" style="cursor: pointer;">
+                  <span class="glyphicon glyphicon-search"></span>
+                </span>
+              </div>
+              <div class="pull-right pad-left-right" style="margin-right: 1.5rem">
+                <a class="btn btn-success" [routerLink]="['new']">New Victory</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-body">  
+    @for (group of getGroupedVictories(); track group.day) {
+      <cms-victory-item 
+        [day]="group.day"
+        [victories]="group.list">
+      </cms-victory-item>
+    }
+  </div>
+</div>

@@ -6,3 +6,13 @@ export class Message {
     public sender: string
    ) {}
 }
+// Victory Planner Code
+export class Victory {
+  constructor(
+    public id: string,
+    public day: string,
+    public number: number,
+    public victory: string,
+    public _id?: string
+  ) {}
+}

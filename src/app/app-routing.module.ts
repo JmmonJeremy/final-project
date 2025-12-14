@@ -1,13 +1,17 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { Documents } from "./documents/documents";
 import { MessageList } from "./messages/message-list/message-list";
-import { Contacts } from "./contacts/contacts";
+import { Documents } from "./documents/documents";
 import { DocumentEdit } from "./documents/document-edit/document-edit";
 import { DocumentDetail } from "./documents/document-detail/document-detail";
+import { Contacts } from "./contacts/contacts";
 import { ContactEdit } from "./contacts/contact-edit/contact-edit";
 import { ContactDetail } from "./contacts/contact-detail/contact-detail";
+import { Victories } from "./victories/victories";
+import { VictoryEdit } from "./victories/victory-edit/victory-edit";
+import { VictoryDetail } from "./victories/victory-detail/victory-detail";
+
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/documents', pathMatch: 'full' },
@@ -21,6 +25,17 @@ const appRoutes: Routes = [
     { path: 'new', component: ContactEdit },
     { path: ':id', component: ContactDetail },
     { path: ':id/edit', component: ContactEdit },
+  ] },
+  { path: 'victories', component: Victories, children: [  
+    { path: 'new', component: VictoryEdit },
+    // NEW: route for day-based detail list
+    { path: 'day/:day', component: VictoryDetail },
+    { path: 'day/:day/edit', component: VictoryEdit },
+    { path: ':day/:id/edit', component: VictoryEdit },
+    // ORIGINAL routes
+    { path: ':id', component: VictoryDetail },
+    { path: ':id/edit', component: VictoryEdit },
+
   ] },
 ]
 

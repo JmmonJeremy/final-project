@@ -5,3 +5,242 @@
   </div>
 </a>
 
+<div class="day-row" data-day="Sun">
+  <div class="day-badge">
+      <div class="circle">Sun</div>
+  </div>
+  <div class="day-content">
+      <label class="sr-only" for="sunNotes">Sunday entries</label>
+      <textarea id="sunNotes" name="sunNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+      <div class="score-ribbon" aria-hidden="false">
+      <div class="label">Daily &nbsp; • &nbsp; Victory &nbsp; • &nbsp; Scoreboard</div>
+      <div class="scorebox">
+        <label for="sunScore" style="color:#fff;font-weight:600;">Score</label>
+        <input id="sunScore" name="sunScore" type="number" min="0" max="999" value="0" />
+      </div>
+      </div>
+  </div>
+</div>
+
+<!-- Victory Planner HTML -->
+<div class="page" role="main">
+    <header>
+      <h1>Weekly Victories — Input → Live Output</h1>
+    </header>
+
+    <form id="victoryForm" class="form" autocomplete="off" onsubmit="handleSubmit(event)">
+      <div class="grid" id="gridRoot">
+        <!-- Row template repeated for 7 days -->
+        <!-- Day 1 (Sunday) -->
+        <div class="day-row" data-day="Sun">
+          <div class="day-badge">
+            <div class="circle">Sun</div>
+          </div>
+
+          <div class="input-cell">
+            <label for="sunNotes" class="sr-only">Sunday</label>
+            <textarea id="sunNotes" name="sunNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="1" aria-live="polite">
+            <div class="output-header">Sunday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-sun"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 2 (Monday) -->
+        <div class="day-row" data-day="Mon">
+          <div class="day-badge">
+            <div class="circle">Mon</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="monNotes" name="monNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="2" aria-live="polite">
+            <div class="output-header">Monday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-mon"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 3 (Tuesday) -->
+        <div class="day-row" data-day="Tues">
+          <div class="day-badge">
+            <div class="circle">Tues</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="tueNotes" name="tueNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="3" aria-live="polite">
+            <div class="output-header">Tuesday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-tue"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 4 (Wednesday) -->
+        <div class="day-row" data-day="Wed">
+          <div class="day-badge">
+            <div class="circle">Wed</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="wedNotes" name="wedNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="4" aria-live="polite">
+            <div class="output-header">Wednesday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-wed"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 5 (Thursday) -->
+        <div class="day-row" data-day="Thurs">
+          <div class="day-badge">
+            <div class="circle">Thurs</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="thuNotes" name="thuNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="5" aria-live="polite">
+            <div class="output-header">Thursday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-thu"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 6 (Friday) -->
+        <div class="day-row" data-day="Fri">
+          <div class="day-badge">
+            <div class="circle">Fri</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="friNotes" name="friNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="6" aria-live="polite">
+            <div class="output-header">Friday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-fri"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 7 (Saturday) -->
+        <div class="day-row" data-day="Sat">
+          <div class="day-badge">
+            <div class="circle">Sat</div>
+          </div>
+
+          <div class="input-cell">
+            <textarea id="satNotes" name="satNotes" class="ruled" rows="4" placeholder="Write your daily victories..."></textarea>
+          </div>
+
+          <div class="output-cell" data-day-index="7" aria-live="polite">
+            <div class="output-header">Saturday Output</div>
+            <div class="output-lines">
+              <div class="output-line"><span class="underlined" id="out-sat"></span></div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- end grid -->
+
+      <div class="controls">
+        <button type="reset" class="reset">Reset</button>
+        <button type="button" class="save" onclick="applyOutputs()">Save → Update Outputs</button>
+      </div>
+    </form>
+
+  </div>
+
+<script>
+  // map textarea IDs to output span IDs
+  const mapping = [
+    ['sunNotes','out-sun'],
+    ['monNotes','out-mon'],
+    ['tueNotes','out-tue'],
+    ['wedNotes','out-wed'],
+    ['thuNotes','out-thu'],
+    ['friNotes','out-fri'],
+    ['satNotes','out-sat']
+  ];
+
+  // live-preview as user types (optional)
+  mapping.forEach(([inputId, outId]) => {
+    const ta = document.getElementById(inputId);
+    const out = document.getElementById(outId);
+    // update on input for immediate feedback
+    ta.addEventListener('input', () => {
+      // show text but keep line breaks; also trim trailing whitespace
+      out.textContent = ta.value.trimEnd();
+    });
+  });
+
+  // applyOutputs() is called by Save button (keeps current behavior too)
+  function applyOutputs(){
+    mapping.forEach(([inputId, outId]) => {
+      const ta = document.getElementById(inputId);
+      const out = document.getElementById(outId);
+      out.textContent = ta.value.trimEnd();
+    });
+    // optionally persist to localStorage
+    try {
+      const data = {};
+      mapping.forEach(([inputId]) => data[inputId] = document.getElementById(inputId).value);
+      localStorage.setItem('weeklyVictories', JSON.stringify(data));
+    } catch(e){ /* ignore storage errors */ }
+  }
+
+  // restore from localStorage on load
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('weeklyVictories') || '{}');
+      mapping.forEach(([inputId, outId]) => {
+        if (saved[inputId]) {
+          document.getElementById(inputId).value = saved[inputId];
+          document.getElementById(outId).textContent = saved[inputId];
+        }
+      });
+    } catch(e){}
+  });
+
+  // Reset: clears outputs too
+  document.querySelector('button[type="reset"]').addEventListener('click', () => {
+    mapping.forEach(([inputId, outId]) => {
+      document.getElementById(outId).textContent = '';
+    });
+    localStorage.removeItem('weeklyVictories');
+  });
+
+  // Keep alternating underline colors if days change order or more days get added
+  (function ensureAlternateColors(){
+    const outputs = document.querySelectorAll('.output-cell');
+    outputs.forEach((cell, idx) => {
+      // idx is 0-based, we used data-day-index 1..7 for CSS rules
+      const di = (idx % 2 === 0) ? '1' : '2'; // 1 -> blue, 2 -> yellow pattern
+      cell.setAttribute('data-day-index', String(idx+1));
+      // the CSS has rules for 1..7, if you add more days they'll wrap colors by odd/even index
+    });
+  })();
+
+  function handleSubmit(e){
+    e.preventDefault();
+    applyOutputs();
+    alert('Outputs updated and saved locally.');
+  }
+</script>
