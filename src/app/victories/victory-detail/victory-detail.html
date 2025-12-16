@@ -37,7 +37,7 @@
   <!-- Buttons -->
   <div class="victory-actions">
     <a (click)="onDelete()" class="btn btn-danger">Delete</a>
-    <a [routerLink]="getEditRoute()" class="btn btn-primary">Edit</a>    
+    <a [routerLink]="getEditRoute()" (click)="linkEditWithDay()" class="btn btn-primary">Edit</a>    
     <button class="btn btn-success" type="button" (click)="onClose()">Close</button> 
   </div>
   <!-- Select & Deselect All -->

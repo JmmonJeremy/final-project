@@ -1,5 +1,17 @@
 /* Victory Planner Styling */
 
+/* to keep active styling for days with victories when adding */
+.spoof-active {
+  background-color: #337ab7;
+}
+
+.list-group-item.spoof-active {  
+    background-color: #337ab7;
+    border-color: #337ab7;
+    color: white;
+    z-index: 2;
+}
+
 /* Each day's row */
 .day-row{
   display:flex;

@@ -41,7 +41,8 @@ export class VictoryEdit implements OnInit, OnDestroy {
   buttonState: 'default' | 'pressed' = 'default';
   savedRecently = false;
   victoriesForDay: Victory[] = []; 
-  currentVictoryId: string;         
+  currentVictoryId: string;   
+  inAddButton:boolean;      
   
   private paramsSubscription: Subscription;  // Store outer subscription
   private subscription: Subscription;  // Store inner subscription
@@ -54,13 +55,13 @@ export class VictoryEdit implements OnInit, OnDestroy {
   constructor(
     private victoryService: VictoryService,
     private router: Router,
-    private route: ActivatedRoute) {}
+    private route: ActivatedRoute) { }
 
 ngOnInit(): void {
+    this.inAddButton = this.victoryService.inAddButton;
     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
-      this.dayFromRoute = params['day'];
-
-      if (!params['id']) {
+      this.dayFromRoute = params['day'];     
+      if (!params['id'] || this.victoryService.inAddButton) {        
         // New victory mode
         this.editMode = false;
         this.victory = new Victory('', this.dayFromRoute, 1, '');
@@ -104,14 +105,18 @@ ngOnInit(): void {
   }
 
   loadDayVictories() {
+    this.victoryService.closeEditDay = true;
     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
-    var victories = this.victoriesForDay; 
+    var victories = this.victoriesForDay;     
     // If there are victories for this day → go to edit page
-    if (victories && victories.length > 0) {
-      this.router.navigate(['/victories', victories[0].day, victories[0].id, 'edit']);           
+    if (victories && victories.length > 0) {  
+      this.victoryService.editDayNavMode = true;
+      this.victoryService.dayNavigation = victories[0].day;         
+      this.router.navigate(['/victories', victories[0].day, victories[0].id, 'edit']);              
       this.victory = JSON.parse(JSON.stringify(victories[0]));     
     } else {
-      // If the day is empty → go to empty edit page to add a victory
+      // If the day is empty → go to empty edit page to add a victory 
+      this.victoryService.dayNavigation = "other";        
       this.router.navigate(['/victories/day', this.victory.day || 'new', 'edit']);
     }
   }  
@@ -175,7 +180,21 @@ ngOnInit(): void {
     }, 500); // duration should match your pressed->default transition
   }
 
-  onClose() {
+  passOnClosedEditStatus() {
+    this.victoryService.closeEditDay = true; 
+    this.victoryService.editDayNavMode = false; 
+  }
+
+  onBack() {
+    if (!this.victory.victory) {
+      this.router.navigate(['/victories']); 
+    }
+    else {
+      this.router.navigate(['/victories/day', this.victory.day]); 
+    }
+  }
+
+  onClose() {    
     this.router.navigate(['/victories']);  
   } 
 

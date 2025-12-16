@@ -13,8 +13,12 @@ export class VictoryService {
   victoryChangedEvent = new Subject<Victory[]>();
   victorySelectedEvent = new EventEmitter<Victory>();
   victories: Victory[] = [];
-  maxVictoryId: number;
- 
+  maxVictoryId: number; 
+  inAddButton: boolean = false;
+  notEmptyEditDay: string = "other"; 
+  closeEditDay: boolean = false;
+  editDayNavMode: boolean = false;
+  dayNavigation: string = "other";
 
   constructor(private http: HttpClient) { }
 
@@ -35,9 +39,9 @@ export class VictoryService {
       next: (response) => {        
         this.victories = response.victories;
         console.log("Raw victory from server:", response.victories[0]);
-for (const key of Object.keys(response.victories[0])) {
-  console.log("KEY:", key, "TYPE:", typeof response.victories[0][key]);
-}
+        for (const key of Object.keys(response.victories[0])) {
+          console.log("KEY:", key, "TYPE:", typeof response.victories[0][key]);
+        }
 
         console.log('Victories loaded:', this.victories);
         this.maxVictoryId = this.getMaxVId();

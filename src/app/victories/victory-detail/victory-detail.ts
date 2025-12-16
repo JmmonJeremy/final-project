@@ -26,7 +26,7 @@ export class VictoryDetail implements OnInit, OnDestroy {
               private route: ActivatedRoute,
               private router: Router) {  }
 
-  ngOnInit(): void {
+  ngOnInit(): void {     
     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
       this.selectedDay = params['day'];  // <-- this comes from /victories/:day
 
@@ -43,15 +43,20 @@ export class VictoryDetail implements OnInit, OnDestroy {
     });
   }
 
+  linkEditWithDay() {
+    this.victoryService.notEmptyEditDay = this.selectedDay;
+    console.log("detail service notEmptyEdit: ", this.selectedDay); 
+    this.victoryService.closeEditDay = false;     
+  }
+
   getEditRoute(): any[] {
-    if (this.victoriesForDay && this.victoriesForDay.length > 0) {
+    if (this.victoriesForDay && this.victoriesForDay.length > 0) {  
       // edit the first victory for the day
       return ['/victories', this.victoriesForDay[0].id, 'edit'];
     }
     // no victories: open the "new victory for day" edit route
     return ['/victories/day', this.selectedDay || 'new', 'edit'];
   }
-
 
   private loadDetailData() {
     this.victory = this.victoryService.getVictory(this.id);
@@ -117,8 +122,9 @@ export class VictoryDetail implements OnInit, OnDestroy {
     });
   }
 
-  onClose() {
+  onClose() {    
   this.router.navigate(['/victories']); 
+  this.victoryService.closeEditDay = true;
   } 
 
   ngOnDestroy(): void {  // Add this method

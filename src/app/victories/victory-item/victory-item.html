@@ -3,7 +3,9 @@
 <a [routerLink]="getRouteForDay()"
    routerLinkActive="active"
    [routerLinkActiveOptions]="{ exact: true }"
-   class="list-group-item clearfix day-row">
+   (click)="addingModeOff()"
+   class="list-group-item clearfix day-row"
+   [ngClass]="notEmptyEditDay === day && !closeEditDay || dayNavigation === day && editDayNavMode ? 'spoof-active' : ''">  
   <div class="day-badge">
     <h4 class="circle list-group-item-heading">{{ day }}</h4>
   </div>
@@ -26,5 +28,5 @@
     <div class="score-ribbon">
       <div class="label" style="letter-spacing: 0.25em;" >Daily &nbsp; &nbsp; • &nbsp; &nbsp; Victory &nbsp; &nbsp; • &nbsp; &nbsp; Scoreboard</div>
     </div>
-  </span>
+  </span>  
 </a>

@@ -1,8 +1,8 @@
 <p>victory-edit works!</p>
 <div class="panel panel-default" style="border: 10px solid rgb(49, 145, 204); outline: 4px solid rgb(49, 145, 204); border-radius: 2rem; background-color:rgb(232, 250, 250);">
-  <div class="panel-body"  >
+  <div class="panel-body">
     <!-- START Victory Selector Dropdown -->
-    <div class="row" *ngIf="victoriesForDay && victoriesForDay.length > 1" style="margin-bottom:1rem;">
+    <div class="row" *ngIf="victoriesForDay && victoriesForDay.length > 1  && !inAddButton" style="margin-bottom:1rem;">
       <div class="col-sm-12 form-group">
         <label for="selectVictory" style="color: rgb(71, 169, 230);; font-size: 3rem;">Select Victory to Edit:</label>
         <select class="form-control"
@@ -159,8 +159,8 @@
         <!-- Navigation Buttons -->
         <div class="row">
           <div class="col-xs-12 btn-toolbar pull-right">        
-            <a class="btn btn-warning pull-right" [routerLink]="['/victories/day', victory.day]">Back</a>   
-            <a class="btn btn-success pull-right" [routerLink]="['/victories']">Close</a> 
+            <a class="btn btn-warning pull-right" (click)="onBack()">Back</a>   
+            <a class="btn btn-success pull-right" (click)="passOnClosedEditStatus()" [routerLink]="['/victories']">Close</a> 
           </div>
         </div>
 

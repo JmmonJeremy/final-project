@@ -29,6 +29,10 @@ export class VictoryList  implements OnInit, OnDestroy {
         }
       )
   }
+    
+  setForAdding() {    
+    this.victoryService.inAddButton = true;        
+  }
 
   getGroupedVictories() {
   const groups = {};
