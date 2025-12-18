@@ -35,17 +35,25 @@ import { DAYS_OF_WEEK, DayOfWeek } from '../../shared/constants';
 })
 export class VictoryEdit implements OnInit, OnDestroy {
   originalVictory: Victory;
-  victory: Victory; 
+ victory: Victory = new Victory('', 'Sat', 0, '');  // FIXED: Initialize to prevent undefined 
   editMode: boolean = false;    
   id: string;
   buttonState: 'default' | 'pressed' = 'default';
   savedRecently = false;
+  addedRecently = false;
   victoriesForDay: Victory[] = []; 
   currentVictoryId: string;   
-  inAddButton:boolean;      
+  inAddButton:boolean;  
+  emptydays: boolean; 
+  victories: Victory [] = [];  
+  filteredVictories: Victory[] = []; // filtered from dropdown
+  newVictoryText: string = ''; // bound to input
+  addSuccess = false;
+  selectedDay: DayOfWeek;
   
   private paramsSubscription: Subscription;  // Store outer subscription
   private subscription: Subscription;  // Store inner subscription
+  private victorySubscription: Subscription;
 
   @ViewChild('victoryInput') victoryInputRef: ElementRef;   // Added to be able to clear the fields 
   dayFromRoute: DayOfWeek;
@@ -57,55 +65,134 @@ export class VictoryEdit implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute) { }
 
-ngOnInit(): void {
-    this.inAddButton = this.victoryService.inAddButton;
-    this.paramsSubscription = this.route.params.subscribe((params: Params) => {
-      this.dayFromRoute = params['day'];     
-      if (!params['id'] || this.victoryService.inAddButton) {        
-        // New victory mode
-        this.editMode = false;
-        this.victory = new Victory('', this.dayFromRoute, 1, '');
-        this.victoriesForDay = this.victoryService.getVictoriesByDay(this.dayFromRoute);
-        return;
-      }
-
-      // Edit mode
-      this.id = params['id'];
-
-      if (this.victoryService.victories && this.victoryService.victories.length > 0) {
-        this.originalVictory = this.victoryService.getVictory(this.id);
-        if (!this.originalVictory) {
-          console.warn('Victory not found in memory; navigating back');
-          this.router.navigate(['/victories']);
-          return;
+  ngOnInit(): void {      
+    this.victoryService.getVictories();    
+    this.victorySubscription = this.victoryService.victoryChangedEvent
+      .subscribe(
+        (victories: Victory[])=> {
+          this.victories = victories;          
+          this.filteredVictories = this.getUniqueVictories(this.victories); // start with full list of only unique 
+          this.handleEditMode();  // NEW: Extracted to load data after victories
         }
-        this.editMode = true;
-        this.victory = JSON.parse(JSON.stringify(this.originalVictory));
-        this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
-        this.currentVictoryId = this.victory.id;
-        return;
-      }
-
-      // Load from service if not already loaded
-      this.subscription = this.victoryService.victoryChangedEvent.subscribe(() => {
-        this.originalVictory = this.victoryService.getVictory(this.id);
-        if (!this.originalVictory) {
-          console.warn('Victory not found after load; navigating back');
-          this.router.navigate(['/victories']);
-          return;
-        }
-        this.editMode = true;
-        this.victory = JSON.parse(JSON.stringify(this.originalVictory));
-        this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
-        this.currentVictoryId = this.victory.id;
-      });
-
-      this.victoryService.getVictories();
-    });
+      );     
+    this.emptydays = this.victoryService.emptyDays;
+    this.inAddButton = this.victoryService.inAddButton;    
   }
 
+  // NEW: Extracted method for handling edit/new logic (runs after data load)
+  private handleEditMode(): void {
+    const params = this.route.snapshot.params;  // FIXED: Snapshot for sync, no sub needed
+    console.log('Snapshot params:', params);
+
+    this.dayFromRoute = params['day'];
+    this.id = params['id'];
+
+    if (!this.id || this.victoryService.inAddButton) {        
+      // New victory mode
+      console.log('New mode');
+      this.editMode = false;
+      this.victory = new Victory('', this.dayFromRoute, 1, '');
+      this.victoriesForDay = this.victoryService.getVictoriesByDay(this.dayFromRoute);
+      return;
+    }
+
+    // Edit mode
+    console.log('Edit mode for ID:', this.id);
+    this.selectedDay = params['day'];  // From /victories/:day
+    this.victoryService.victoryDetail = "true" + params['day'];  // Your flag logic
+    console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
+
+    if (this.victories.length > 0) {
+      this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+      this.loadVictoryForEdit();
+    } else {
+      // Fallback sub for rare case (data not loaded yet)
+      this.subscription = this.victoryService.victoryChangedEvent.subscribe(() => {
+        this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+        this.loadVictoryForEdit();
+      });
+    }
+  }
+
+  // NEW: Extracted to load victory for edit
+  private loadVictoryForEdit(): void {
+    this.originalVictory = this.victoryService.getVictory(this.id);
+    if (!this.originalVictory) {
+      console.warn('Victory not found; navigating back');
+      this.router.navigate(['/victories']);
+      return;
+    }   
+    this.victoryService.victoryDetail = "false" + this.originalVictory.day;
+    console.log("EDIT VALUE:", this.victoryService.victoryDetail);   
+    this.editMode = true;
+    this.victory = JSON.parse(JSON.stringify(this.originalVictory));
+    this.victoriesForDay = this.victoryService.getVictoriesByDay(this.originalVictory.day);
+    this.currentVictoryId = this.originalVictory.id;
+  }
+
+  getUniqueVictories(victories: Victory[]): Victory[] {
+  const seen = new Set<string>();
+  return victories.filter(v => {
+    if (seen.has(v.victory.toLowerCase())) return false; // skip duplicates (case-insensitive)
+    seen.add(v.victory.toLowerCase());
+    return true;
+  });
+}
+
+// Filter victories as user types
+filterVictories() {
+  const term = this.newVictoryText.toLowerCase();
+  this.filteredVictories = this.getUniqueVictories(this.victories.filter(v =>
+    v.victory.toLowerCase().includes(term))
+  );
+}
+
+// Handle drop event from victory-dropdown
+onVictoryDropped(event: DndDropEvent) {
+  const droppedVictory = event.data as Victory;
+  if (!droppedVictory) return;
+  // Write into your real input binding
+  this.newVictoryText = droppedVictory.victory;
+  this.filteredVictories = [];
+}
+
+onAddVictory(form: NgForm) {
+  if (!this.newVictoryText || !this.victory.day) {
+    return; // nothing to add or no day selected
+  }
+  // Build new victory object
+  const newVictory: Victory = {
+    id: 'To be added by victoryService method updateVictory or addVictory',    // Adjust if you're auto-generating
+    day: this.victory.day,
+    number: this.victory.number,
+    victory: this.newVictoryText.trim()
+  };
+  // Save through service
+  this.victoryService.addVictory(newVictory);
+  // Reset UI values
+  this.newVictoryText = '';
+  form.resetForm();
+  this.addSuccess = true;
+  // Refresh the list on UI
+  this.victories = this.victoryService.victories;  // FIXED: Use property !!!!!!!!!!!!!!!
+  this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
+  // Trigger Saved UI
+  this.triggerAdded();
+  // Trigger animation
+  this.buttonState = 'pressed';
+  // After animation duration, reset state
+  setTimeout(() => {
+    this.buttonState = 'default';
+    (document.activeElement as HTMLElement)?.blur();
+  }, 500); // duration should match your pressed->default transition
+  // Optional feedback timeout
+  setTimeout(() => (this.addSuccess = false), 2000);
+}
+
   loadDayVictories() {
-    this.victoryService.closeEditDay = true;
+    this.emptydays = false;
+    this.victoryService.emptyDays = this.emptydays;
+    this.victoryService.closeEditDay = true;    
     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
     var victories = this.victoriesForDay;     
     // If there are victories for this day → go to edit page
@@ -130,6 +217,16 @@ ngOnInit(): void {
     }
   }
 
+  incrementNumber() {
+    this.victory.number = (this.victory.number || 1) + 1;
+  }
+
+  decrementNumber() {
+    if (this.victory.number > 1) {
+      this.victory.number--;
+    }
+  }
+
   onClear(){   
     this.victoryInputRef.nativeElement.value = "";  
     this.victoryField.control.setValue('');
@@ -137,16 +234,28 @@ ngOnInit(): void {
   }
 
   private triggerSaved() {
-  this.savedRecently = false;
-
-  setTimeout(() => {
-    this.savedRecently = true;
+    this.savedRecently = false;
 
     setTimeout(() => {
-      this.savedRecently = false;
-    }, 2000);
-  });
-}
+      this.savedRecently = true;
+
+      setTimeout(() => {
+        this.savedRecently = false;
+      }, 2000);
+    });
+  }
+
+  private triggerAdded() {
+    this.addedRecently = false;
+
+    setTimeout(() => {
+      this.addedRecently = true;
+
+      setTimeout(() => {
+        this.addedRecently = false;
+      }, 2000);
+    });
+  }
 
   onSubmit(form: NgForm) {
     const value = form.value;
@@ -186,6 +295,7 @@ ngOnInit(): void {
   }
 
   onBack() {
+    this.victoryService.resetVictoryDetail();  // NEW: Clear state
     if (!this.victory.victory) {
       this.router.navigate(['/victories']); 
     }
@@ -194,7 +304,8 @@ ngOnInit(): void {
     }
   }
 
-  onClose() {    
+  onClose() {   
+    this.victoryService.resetVictoryDetail();  // NEW: Clear state 
     this.router.navigate(['/victories']);  
   } 
 

@@ -14,7 +14,8 @@ import { VictoriesFilterPipe } from '../victories-filter-pipe';
 })
 export class VictoryList  implements OnInit, OnDestroy {
   victories: Victory[] = [];
-  term: string;
+  term: string; 
+
   private victorySubscription: Subscription;
   private victoriesFilterPipe = new VictoriesFilterPipe();
 
@@ -31,7 +32,8 @@ export class VictoryList  implements OnInit, OnDestroy {
   }
     
   setForAdding() {    
-    this.victoryService.inAddButton = true;        
+    this.victoryService.inAddButton = true; 
+    this.victoryService.emptyDays = true;       
   }
 
   getGroupedVictories() {

@@ -19,8 +19,19 @@ export class VictoryService {
   closeEditDay: boolean = false;
   editDayNavMode: boolean = false;
   dayNavigation: string = "other";
+  emptyDays: boolean = false;
+  victoryDetail: string = "boolean+day";
+
+  private stateChanged = new Subject<void>();
+  stateChanged$ = this.stateChanged.asObservable();
 
   constructor(private http: HttpClient) { }
+
+// NEW: Reset method for leaving edit
+  resetVictoryDetail(): void {
+    this.victoryDetail = '';
+    this.stateChanged.next();  // Notify items to re-evaluate
+  } 
 
   private sortThenSend() {
     this.victories.sort((a, b) => {
@@ -74,9 +85,76 @@ export class VictoryService {
     return maxId;
   }
 
+  getVictoriesList() {
+    return this.victories.slice(); // full list copy
+  }
+
   getVictoriesByDay(day: string): Victory[] {
     if (!this.victories || this.victories.length === 0) return [];
     return this.victories.filter(v => v.day === day);
+  }
+
+  private reorderVictoryList(targetDay: string): void {
+    // Get only the victories for that day
+    const daily = this.victories
+      .filter(v => v.day === targetDay)
+      // sort them
+      .sort((a, b) => a.number - b.number);
+    // Renumber them 1..N
+    daily.forEach((v, i) => v.number = i + 1);
+  }
+
+  /**
+ * Reorders numbering within a single day, inserting a victory
+ * at its chosen number and shifting others accordingly.
+ */
+private reorderByNumberWithinDay(day: string, victoryId: string, requestedNumber: number): void {
+  // 1. Extract victories for that day in sorted order
+  let sameDay = this.victories
+    .filter(v => v.day === day)
+    .sort((a, b) => a.number - b.number);
+
+  const otherDays = this.victories.filter(v => v.day !== day);
+
+  // If the list is empty, nothing to do
+  if (!sameDay.length) return;
+
+  // 2. Remove the targeted victory from the list
+  const index = sameDay.findIndex(v => v.id === victoryId);
+  if (index === -1) return;
+
+  const [removed] = sameDay.splice(index, 1);
+
+  // 3. Compute the insertion index based on requestedNumber
+  const insertIndex = Math.max(
+    0,
+    Math.min(requestedNumber - 1, sameDay.length) // cap at end
+  );
+
+  // 4. Insert the victory back into the target slot
+  sameDay.splice(insertIndex, 0, removed);
+
+  // 5. Renumber sequentially 1..N
+  sameDay = sameDay.map((v, idx) => {
+    v.number = idx + 1;
+    return v;
+  });
+
+  // 6. Merge back into main list
+  this.victories = [...sameDay, ...otherDays];
+}
+  
+  private persistReorderedVictories(day: string): void {
+    const daily = this.victories.filter(v => v.day === day);
+
+    daily.forEach(v => {
+      const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+      this.http.put(`${environment.apiUrl}/victories/${v.id}`, v, { headers })
+        .subscribe({
+          error: err => console.error('Failed reorder update for', v, err)
+        });
+    });
   }
 
   addVictory(victory: Victory) {
@@ -92,8 +170,15 @@ export class VictoryService {
       { headers: headers })
       .subscribe(
         (responseData) => {
+          // consolidate to single variable 
+          const saved = responseData.victory;
           // add new victory to victories
-          this.victories.push(responseData.victory);
+          this.victories.push(saved);
+          // reassign numbering within a day by passing in the day
+          this.reorderVictoryList(saved.day);
+          // save the change to the database
+          this.persistReorderedVictories(saved.day);
+          // now update sorting + emit
           this.sortThenSend();
         }
       );
@@ -116,7 +201,13 @@ export class VictoryService {
       newVictory, { headers: headers })
       .subscribe(
         (response: Response) => {
+          // replace victory with new version
           this.victories[pos] = newVictory;
+          // reassign numbering within a day by passing in the day
+          //  this.reorderVictoryList(newVictory.day);
+          // // save the change to the database
+          // this.persistReorderedVictories(newVictory.day);
+          // now update sorting + emit
           this.sortThenSend();
         }
       );
