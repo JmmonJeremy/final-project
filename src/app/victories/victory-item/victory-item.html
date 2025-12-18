@@ -1,11 +1,12 @@
 <p>victory-item works!</p>
 <!-- code to display grouped victories by day with victories in victory list & days without victories -->
 <a [routerLink]="getRouteForDay()"
+   #rla="routerLinkActive"
    routerLinkActive="active"
    [routerLinkActiveOptions]="{ exact: true }"
    (click)="addingModeOff()"
    class="list-group-item clearfix day-row"
-   [ngClass]="notEmptyEditDay === day && !closeEditDay || dayNavigation === day && editDayNavMode && victoryDetail === 'false'+day ? 'spoof-active' : ''">  
+   [ngClass]="notEmptyEditDay === day && !closeEditDay || dayNavigation === day && editDayNavMode && !rla.isActive ? 'spoof-active' : ''">  
   <div class="day-badge">
     <h4 class="circle list-group-item-heading">{{ day }}</h4>
   </div>
