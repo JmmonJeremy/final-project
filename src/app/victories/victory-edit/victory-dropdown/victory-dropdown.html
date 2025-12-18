@@ -1,0 +1,16 @@
+<div class="reuse-dropdown" [class.open]="open" >
+  <div class="reuse-header" (click)="open = !open">
+    {{ placeholder }}
+    <span class="dropdown-arrow">▼</span>
+  </div>
+
+  <div class="reuse-list" *ngIf="open">
+    <div
+      class="reuse-item"
+      *ngFor="let v of victories"
+      [dndDraggable]="v"    
+    >
+      ✨ {{ v.victory }}
+    </div>
+  </div>
+</div>

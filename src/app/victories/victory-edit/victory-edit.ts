@@ -40,12 +40,19 @@ export class VictoryEdit implements OnInit, OnDestroy {
   id: string;
   buttonState: 'default' | 'pressed' = 'default';
   savedRecently = false;
+  addedRecently = false;
   victoriesForDay: Victory[] = []; 
   currentVictoryId: string;   
-  inAddButton:boolean;      
+  inAddButton:boolean;  
+  emptydays: boolean; 
+  victories: Victory [] = [];  
+  filteredVictories: Victory[] = []; // filtered from dropdown
+  newVictoryText: string = ''; // bound to input
+  addSuccess = false;
   
   private paramsSubscription: Subscription;  // Store outer subscription
   private subscription: Subscription;  // Store inner subscription
+  private victorySubscription: Subscription;
 
   @ViewChild('victoryInput') victoryInputRef: ElementRef;   // Added to be able to clear the fields 
   dayFromRoute: DayOfWeek;
@@ -57,10 +64,24 @@ export class VictoryEdit implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute) { }
 
-ngOnInit(): void {
+  ngOnInit(): void {
+    // const lastSegment = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
+    this.victoryService.lastUrlSegment = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
+    // console.log("URL Day Segment: ", this.route.snapshot.url[this.route.snapshot.url.length - 3].path);
+    // console.log("!!!!!!!!LAST SEGMENT: ", lastSegment);
+    this.victoryService.getVictories();
+    this.victorySubscription = this.victoryService.victoryChangedEvent
+      .subscribe(
+        (victories: Victory[])=> {
+          this.victories = victories;
+          this.filteredVictories = this.getUniqueVictories(this.victories); // start with full list of only unique 
+        }
+      )
+    this.emptydays = this.victoryService.emptyDays;
     this.inAddButton = this.victoryService.inAddButton;
     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
-      this.dayFromRoute = params['day'];     
+      this.dayFromRoute = params['day'];  
+      console.log("SUBSCRIPTION Day: ", this.dayFromRoute);
       if (!params['id'] || this.victoryService.inAddButton) {        
         // New victory mode
         this.editMode = false;
@@ -83,6 +104,7 @@ ngOnInit(): void {
         this.victory = JSON.parse(JSON.stringify(this.originalVictory));
         this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
         this.currentVictoryId = this.victory.id;
+        this.victoryService.lastUrlSegment = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
         return;
       }
 
@@ -99,13 +121,74 @@ ngOnInit(): void {
         this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
         this.currentVictoryId = this.victory.id;
       });
-
+      this.victoryService.lastUrlSegment = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
       this.victoryService.getVictories();
     });
   }
 
+  getUniqueVictories(victories: Victory[]): Victory[] {
+  const seen = new Set<string>();
+  return victories.filter(v => {
+    if (seen.has(v.victory.toLowerCase())) return false; // skip duplicates (case-insensitive)
+    seen.add(v.victory.toLowerCase());
+    return true;
+  });
+}
+
+// Filter victories as user types
+filterVictories() {
+  const term = this.newVictoryText.toLowerCase();
+  this.filteredVictories = this.getUniqueVictories(this.victories.filter(v =>
+    v.victory.toLowerCase().includes(term))
+  );
+}
+
+// Handle drop event from victory-dropdown
+onVictoryDropped(event: DndDropEvent) {
+  const droppedVictory = event.data as Victory;
+  if (!droppedVictory) return;
+  // Write into your real input binding
+  this.newVictoryText = droppedVictory.victory;
+  this.filteredVictories = [];
+}
+
+onAddVictory(form: NgForm) {
+  if (!this.newVictoryText || !this.victory.day) {
+    return; // nothing to add or no day selected
+  }
+  // Build new victory object
+  const newVictory: Victory = {
+    id: 'To be added by victoryService method updateVictory or addVictory',    // Adjust if you're auto-generating
+    day: this.victory.day,
+    number: this.victory.number,
+    victory: this.newVictoryText.trim()
+  };
+  // Save through service
+  this.victoryService.addVictory(newVictory);
+  // Reset UI values
+  this.newVictoryText = '';
+  form.resetForm();
+  this.addSuccess = true;
+  // Refresh the list on UI
+  this.victories = this.victoryService.getVictoriesList();
+  this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
+  // Trigger Saved UI
+  this.triggerAdded();
+  // Trigger animation
+  this.buttonState = 'pressed';
+  // After animation duration, reset state
+  setTimeout(() => {
+    this.buttonState = 'default';
+    (document.activeElement as HTMLElement)?.blur();
+  }, 500); // duration should match your pressed->default transition
+  // Optional feedback timeout
+  setTimeout(() => (this.addSuccess = false), 2000);
+}
+
   loadDayVictories() {
-    this.victoryService.closeEditDay = true;
+    this.emptydays = false;
+    this.victoryService.emptyDays = this.emptydays;
+    this.victoryService.closeEditDay = true;    
     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
     var victories = this.victoriesForDay;     
     // If there are victories for this day → go to edit page
@@ -130,6 +213,16 @@ ngOnInit(): void {
     }
   }
 
+  incrementNumber() {
+    this.victory.number = (this.victory.number || 1) + 1;
+  }
+
+  decrementNumber() {
+    if (this.victory.number > 1) {
+      this.victory.number--;
+    }
+  }
+
   onClear(){   
     this.victoryInputRef.nativeElement.value = "";  
     this.victoryField.control.setValue('');
@@ -137,16 +230,28 @@ ngOnInit(): void {
   }
 
   private triggerSaved() {
-  this.savedRecently = false;
-
-  setTimeout(() => {
-    this.savedRecently = true;
+    this.savedRecently = false;
 
     setTimeout(() => {
-      this.savedRecently = false;
-    }, 2000);
-  });
-}
+      this.savedRecently = true;
+
+      setTimeout(() => {
+        this.savedRecently = false;
+      }, 2000);
+    });
+  }
+
+  private triggerAdded() {
+    this.addedRecently = false;
+
+    setTimeout(() => {
+      this.addedRecently = true;
+
+      setTimeout(() => {
+        this.addedRecently = false;
+      }, 2000);
+    });
+  }
 
   onSubmit(form: NgForm) {
     const value = form.value;
@@ -195,11 +300,14 @@ ngOnInit(): void {
   }
 
   onClose() {    
-    this.router.navigate(['/victories']);  
+    this.router.navigate(['/victories']); 
+    this.victoryService.lastUrlSegment = this.route.snapshot.url[this.route.snapshot.url.length - 1].path; 
+    // this.victoryService.closeEditDay = true; 
   } 
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     this.paramsSubscription?.unsubscribe();  // NEW: Clean up inner sub
+    this.victorySubscription?.unsubscribe();
   }
 }

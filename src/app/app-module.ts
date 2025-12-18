@@ -29,6 +29,7 @@ import { VictoryEdit } from './victories/victory-edit/victory-edit';
 import { VictoryItem } from './victories/victory-item/victory-item';
 import { VictoryList } from './victories/victory-list/victory-list';
 import { VictoriesFilterPipe } from './victories/victories-filter-pipe';
+import { VictoryDropdown } from './victories/victory-edit/victory-dropdown/victory-dropdown';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { VictoriesFilterPipe } from './victories/victories-filter-pipe';
     VictoryEdit,
     VictoryItem,
     VictoryList,
-    VictoriesFilterPipe   
+    VictoriesFilterPipe,
+    VictoryDropdown   
   ],
   imports: [
     BrowserModule,

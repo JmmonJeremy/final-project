@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -12,7 +12,7 @@ import { DayOfWeek } from "../../shared/constants";
   templateUrl: './victory-detail.html',
   styleUrl: './victory-detail.css'
 })
-export class VictoryDetail implements OnInit, OnDestroy {
+export class VictoryDetail implements OnInit, OnDestroy, DoCheck {
   victory: Victory | null = null;
   victoriesForDay: Victory[] = [];      // all victories for the same day
   selectedVictoryIds: string[] = [];        // store ids, not objects
@@ -29,7 +29,8 @@ export class VictoryDetail implements OnInit, OnDestroy {
   ngOnInit(): void {     
     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
       this.selectedDay = params['day'];  // <-- this comes from /victories/:day
-
+      this.victoryService.victoryDetail = "true" + params['day'];  
+      console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
       // Load victories (regardless of whether already loaded)
       if (this.victoryService.victories.length > 0) {
         this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
@@ -43,16 +44,22 @@ export class VictoryDetail implements OnInit, OnDestroy {
     });
   }
 
+  ngDoCheck(): void {
+    this.victoryService.lastUrlSegment = "this.route.snapshot.url[this.route.snapshot.url.length - 1].path"; 
+  }
+
   linkEditWithDay() {
+    this.victoryService.lastUrlSegment = "this.route.snapshot.url[this.route.snapshot.url.length - 1].path"; 
     this.victoryService.notEmptyEditDay = this.selectedDay;
     console.log("detail service notEmptyEdit: ", this.selectedDay); 
-    this.victoryService.closeEditDay = false;     
+    // this.victoryService.closeEditDay = false;     
   }
 
   getEditRoute(): any[] {
-    if (this.victoriesForDay && this.victoriesForDay.length > 0) {  
+      this.victoryService.lastUrlSegment = "this.route.snapshot.url[this.route.snapshot.url.length - 1].path"; 
+    if (this.victoriesForDay && this.victoriesForDay.length > 0) {      
       // edit the first victory for the day
-      return ['/victories', this.victoriesForDay[0].id, 'edit'];
+      return ['/victories', this.victoriesForDay[0].day, this.victoriesForDay[0].id, 'edit'];
     }
     // no victories: open the "new victory for day" edit route
     return ['/victories/day', this.selectedDay || 'new', 'edit'];
