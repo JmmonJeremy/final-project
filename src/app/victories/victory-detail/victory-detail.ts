@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { forkJoin, of, Subscription } from 'rxjs';
 
 import { Victory } from '../victory.model';
 import { VictoryService } from '../../victories/victory.service';
@@ -30,7 +30,7 @@ export class VictoryDetail implements OnInit, OnDestroy {
     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
       this.selectedDay = params['day'];  // <-- this comes from /victories/:day
       this.victoryService.victoryDetail = "true" + params['day'];  
-      console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
+      // console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
       // Load victories (regardless of whether already loaded)
       if (this.victoryService.victories.length > 0) {
         this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
@@ -46,16 +46,17 @@ export class VictoryDetail implements OnInit, OnDestroy {
 
   linkEditWithDay() {
     this.victoryService.notEmptyEditDay = this.selectedDay;
-    console.log("detail service notEmptyEdit: ", this.selectedDay); 
-    this.victoryService.closeEditDay = false;     
+    // console.log("detail service notEmptyEdit: ", this.selectedDay);  
+    this.victoryService.closeEditDay = false; // only applied to days with victories    
+    this.victoryService.inAddButton = false; // only days with victories get sent here.  
   }
 
   getEditRoute(): any[] {
     if (this.victoriesForDay && this.victoriesForDay.length > 0) {  
-      // edit the first victory for the day
-      return ['/victories', this.victoriesForDay[0].day, this.victoriesForDay[0].id, 'edit'];
+      // edit the first victory for the day ONLY DAYS WITH VICTORIES SHOULD REACH HERE
+      return ['/victories', this.victoriesForDay[0].day, this.victoriesForDay[0].id, 'edit'];     
     }
-    // no victories: open the "new victory for day" edit route
+    // no victories: open the "new victory for day" edit route THIS ROUTE SHOULD NEVER BE REACHED
     return ['/victories/day', this.selectedDay || 'new', 'edit'];
   }
 
@@ -87,13 +88,13 @@ export class VictoryDetail implements OnInit, OnDestroy {
 
   // onDelete: delete selected ids, then wait for service event to refresh and maybe navigate
   onDelete() {
-    if (!this.selectedVictoryIds || this.selectedVictoryIds.length === 0) {
-      alert("Select at least one victory to delete.");
-      return;
-    }
-    if (!confirm("Are you sure you want to delete the selected victories?")) {
-      return;
-    }
+    // if (!this.selectedVictoryIds || this.selectedVictoryIds.length === 0) {
+    //   alert("Select at least one victory to delete.");
+    //   return;
+    // }
+    // if (!confirm("Are you sure you want to delete the selected victories?")) {
+    //   return;
+    // }
     // make a copy of ids to delete
     const idsToDelete = [...this.selectedVictoryIds];
     // call delete for each id (find the Victory object and call service)
@@ -122,6 +123,23 @@ export class VictoryDetail implements OnInit, OnDestroy {
       sub.unsubscribe();
     });
   }
+
+//   onDelete() {
+//   const ids = [...this.selectedVictoryIds];
+
+//   forkJoin(
+//     ids.map(id => {
+//       const v = this.victoryService.victories.find(x => x.id === id);
+//       return v ? this.victoryService.deleteVictory(v) : of(null);
+//     })
+//   ).subscribe(() => {
+//     this.selectedVictoryIds = [];
+//     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+//     if (!this.victoriesForDay.length) {
+//       this.router.navigate(['/victories']);
+//     }
+//   });
+// }
 
   onClose() {    
   this.router.navigate(['/victories']); 

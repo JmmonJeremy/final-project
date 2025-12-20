@@ -33,7 +33,8 @@ export class VictoryList  implements OnInit, OnDestroy {
     
   setForAdding() {    
     this.victoryService.inAddButton = true; 
-    this.victoryService.emptyDays = true;       
+    this.victoryService.emptyDays = true;  // for setting off Warning display when New Victory opens with no day selected
+    this.victoryService.notEmptyEditDay = "other"; // to turn off the spoof active day highlight when clicking New Victory with Detail or Edit pg open
   }
 
   getGroupedVictories() {

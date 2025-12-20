@@ -17,6 +17,7 @@ export class VictoryItem implements AfterContentChecked, OnChanges, OnDestroy {
   editDayNavMode: boolean;
   dayNavigation: string;
   victoryDetail: string;
+  clickedDay: string;
 
   @Input() day: DayOfWeek;
   @Input() victories: Victory[];
@@ -39,7 +40,8 @@ export class VictoryItem implements AfterContentChecked, OnChanges, OnDestroy {
     this.dayNavigation = this.victoryService.dayNavigation;
     this.editDayNavMode = this.victoryService.editDayNavMode;
     this.victoryDetail = this.victoryService.victoryDetail;
-    console.log("Item updateState victoryDetail: ", this.victoryDetail); 
+    this.clickedDay = this.victoryService.clickedDay;   
+    // console.log("Item updateState victoryDetail: ", this.victoryDetail); 
   }
 
   // NEW: Sub to state changes for re-evaluation
@@ -59,35 +61,40 @@ export class VictoryItem implements AfterContentChecked, OnChanges, OnDestroy {
   ngAfterContentChecked(): void {
     this.dayNavigation = this.victoryService.dayNavigation;
     this.editDayNavMode = this.victoryService.editDayNavMode;
-    this.victoryDetail = this.victoryService.victoryDetail;
-    console.log("Item AfterContent victoryDetail: ",this.victoryService.victoryDetail); 
+    this.victoryDetail = this.victoryService.victoryDetail;   
+    // console.log("Item AfterContent dayNavigation: ",this.victoryService.dayNavigation); 
   }
 
   getRouteForDay(): any[] {
-    this.victoryDetail = this.victoryService.victoryDetail;
-    console.log("Before victoryDetail: ",this.victoryService.victoryDetail); 
+    this.victoryDetail = this.victoryService.victoryDetail;   
     // If there are victories for this day → go to detail page
-    if (this.victories && this.victories.length > 0) {
-      this.closeEditDay = this.victoryService.closeEditDay;       
-      this.notEmptyEditDay = this.victoryService.notEmptyEditDay;           
+    if (this.victories && this.victories.length > 0) {        
+      this.closeEditDay = this.victoryService.closeEditDay;
+      this.notEmptyEditDay = this.victoryService.notEmptyEditDay; // recieves definition of day other - which in Add Victory is other           
       return ['/victories/day', this.victories[0].day];
-
-    }  
-    
-    // If the day is empty → go to edit page
-    this.notEmptyEditDay = "other";
+    } else {
+    this.closeEditDay = this.victoryService.closeEditDay;   
+    }
     return ['/victories/day', this.day || 'new', 'edit'];
   }
 
   addingModeOff() {
-    this.victoryService.inAddButton = false; 
-    this.victoryDetail = this.victoryService.victoryDetail;
-     console.log("addingModeOff Method victoryDetail: ",this.victoryDetail); 
-     console.log("Service victoryDetail: ",this.victoryService.victoryDetail);
-     if (!this.victories) {console.log("!!!!!!!!!!!!!!THIS DAY", this.day);} 
-     this.victories.forEach(victory => {
-        console.log("!!!!!!!!!!!!!!FOREACH DAY", victory.day);
-        console.log("!!!!!!!!!!!!!!FOREACH LENGTH", this.victories.length);
-     });
+    // console.log("!!!ITEM inAddButton Before: ",this.victoryService.inAddButton); 
+    this.clickedDay = "no"; // sets variable to day clicked
+    if (this.victories && this.victories.length > 0) {
+      this.clickedDay = this.victories[0].day; // sets variable to day clicked
+    }
+    // console.log("!!!ITEM closedEditDay: ", this.victoryService.closeEditDay);
+    this.victoryService.inAddButton = false; // gets set to true in Detail with Edit button if has victories 
+     // If the day is empty → go to edit page
+    if (this.clickedDay === "no" ) {
+        this.victoryService.inAddButton = true; 
+      };  
+    // console.log("!!!ITEM inAddButton Before: ",this.victoryService.inAddButton); 
+    this.victoryService.emptyDays = false; // to stop Warning message for day not being selected if opening after pushing New Victory 
+    // to turn off the spoof active day highlight when clicking New Victory, then selecting a Day in the add page, then clicking day from list
+    this.victoryService.editDayNavMode = false;     
+    this.victoryService.dayNavigation ="ok"; 
+
   }
 }

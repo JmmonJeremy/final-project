@@ -21,6 +21,7 @@ export class VictoryService {
   dayNavigation: string = "other";
   emptyDays: boolean = false;
   victoryDetail: string = "boolean+day";
+  clickedDay: string = "unset"  
 
   private stateChanged = new Subject<void>();
   stateChanged$ = this.stateChanged.asObservable();
@@ -49,12 +50,12 @@ export class VictoryService {
       // Success callback
       next: (response) => {        
         this.victories = response.victories;
-        console.log("Raw victory from server:", response.victories[0]);
+        // console.log("Raw victory from server:", response.victories[0]);
         for (const key of Object.keys(response.victories[0])) {
-          console.log("KEY:", key, "TYPE:", typeof response.victories[0][key]);
+          // console.log("KEY:", key, "TYPE:", typeof response.victories[0][key]);
         }
 
-        console.log('Victories loaded:', this.victories);
+        // console.log('Victories loaded:', this.victories);
         this.maxVictoryId = this.getMaxVId();
         this.sortThenSend();
       },

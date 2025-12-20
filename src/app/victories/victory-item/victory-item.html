@@ -5,8 +5,9 @@
    routerLinkActive="active"
    [routerLinkActiveOptions]="{ exact: true }"
    (click)="addingModeOff()"
-   class="list-group-item clearfix day-row"
-   [ngClass]="notEmptyEditDay === day && !closeEditDay || dayNavigation === day && editDayNavMode && !rla.isActive ? 'spoof-active' : ''">  
+   class="list-group-item clearfix day-row" 
+   [ngClass]="notEmptyEditDay === day && !closeEditDay && dayNavigation === notEmptyEditDay 
+   || dayNavigation === day && editDayNavMode && !rla.isActive && clickedDay === day || closeEditDay + notEmptyEditDay === this.victoryDetail  && notEmptyEditDay === day ? 'spoof-active' : ''">  
   <div class="day-badge">
     <h4 class="circle list-group-item-heading">{{ day }}</h4>
   </div>

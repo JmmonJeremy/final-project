@@ -37,7 +37,7 @@ const appRoutes: Routes = [
     { path: ':id/edit', component: VictoryEdit },
 
   ] },
-]
+] 
 
 @NgModule({
   imports: [RouterModule.forRoot(appRoutes)],

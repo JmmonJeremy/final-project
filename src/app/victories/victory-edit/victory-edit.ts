@@ -35,7 +35,7 @@ import { DAYS_OF_WEEK, DayOfWeek } from '../../shared/constants';
 })
 export class VictoryEdit implements OnInit, OnDestroy {
   originalVictory: Victory;
- victory: Victory = new Victory('', 'Sat', 0, '');  // FIXED: Initialize to prevent undefined 
+  victory: Victory = new Victory('', 'Sat', 1, '');  // FIXED: Initialize to prevent undefined 
   editMode: boolean = false;    
   id: string;
   buttonState: 'default' | 'pressed' = 'default';
@@ -55,8 +55,7 @@ export class VictoryEdit implements OnInit, OnDestroy {
   private subscription: Subscription;  // Store inner subscription
   private victorySubscription: Subscription;
 
-  @ViewChild('victoryInput') victoryInputRef: ElementRef;   // Added to be able to clear the fields 
-  dayFromRoute: DayOfWeek;
+  @ViewChild('victoryInput') victoryInputRef: ElementRef;   // Added to be able to clear the fields  
   @ViewChild('victoryField') victoryField: NgModel;
   daysOfWeek = DAYS_OF_WEEK;
 
@@ -65,45 +64,59 @@ export class VictoryEdit implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute) { }
 
-  ngOnInit(): void {      
+  ngOnInit(): void {          
     this.victoryService.getVictories();    
     this.victorySubscription = this.victoryService.victoryChangedEvent
       .subscribe(
         (victories: Victory[])=> {
           this.victories = victories;          
           this.filteredVictories = this.getUniqueVictories(this.victories); // start with full list of only unique 
-          this.handleEditMode();  // NEW: Extracted to load data after victories
+          this.handleEditMode();  // NEW: Extracted to load data after victories   
         }
-      );     
+      );         
     this.emptydays = this.victoryService.emptyDays;
     this.inAddButton = this.victoryService.inAddButton;    
   }
 
   // NEW: Extracted method for handling edit/new logic (runs after data load)
   private handleEditMode(): void {
-    const params = this.route.snapshot.params;  // FIXED: Snapshot for sync, no sub needed
-    console.log('Snapshot params:', params);
+     this.paramsSubscription = this.route.params.subscribe((params: Params) => {
+      this.selectedDay = params['day'];  // <-- this comes from /victories/:day
+      this.id = params['id'];
+      // Load victories (regardless of whether already loaded)
+      if (this.victoryService.victories.length > 0) {
+        this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+      } else {
+        this.victorySubscription = this.victoryService.victoryChangedEvent.subscribe(() => {
+          this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+        });
 
-    this.dayFromRoute = params['day'];
-    this.id = params['id'];
-
+        this.victoryService.getVictories();
+      }
+    });
+    console.log("!!!!EDIT STUFF: length, selectedDay, clickedDay", this.victoriesForDay.length, this.selectedDay); 
     if (!this.id || this.victoryService.inAddButton) {        
       // New victory mode
-      console.log('New mode');
+      // console.log('New mode');
       this.editMode = false;
-      this.victory = new Victory('', this.dayFromRoute, 1, '');
-      this.victoriesForDay = this.victoryService.getVictoriesByDay(this.dayFromRoute);
+      this.victory = new Victory('', this.selectedDay, 1, '');
+      this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);    
+      console.log("!!!!EDIT length: ", this.victoriesForDay.length, this.selectedDay); // this is messed up and delivering all of the victories
+      this.victoryService.closeEditDay = true;   
       return;
     }
 
     // Edit mode
-    console.log('Edit mode for ID:', this.id);
-    this.selectedDay = params['day'];  // From /victories/:day
-    this.victoryService.victoryDetail = "true" + params['day'];  // Your flag logic
-    console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
+    // console.log('Edit mode for ID:', this.id, this.editMode);
+    
+    this.victoryService.victoryDetail = "true" + this.selectedDay['day'];  // Your flag logic
+    // console.log("DETAIL VALUE:", this.victoryService.victoryDetail);
 
     if (this.victories.length > 0) {
       this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+      this.victoryService.notEmptyEditDay = this.selectedDay;
+      console.log("!!!!EDIT length: ", this.victoriesForDay.length, this.selectedDay); // this is messed up and delivering all of the victories
+      this.victoryService.closeEditDay = false;   
       this.loadVictoryForEdit();
     } else {
       // Fallback sub for rare case (data not loaded yet)
@@ -123,7 +136,8 @@ export class VictoryEdit implements OnInit, OnDestroy {
       return;
     }   
     this.victoryService.victoryDetail = "false" + this.originalVictory.day;
-    console.log("EDIT VALUE:", this.victoryService.victoryDetail);   
+    // console.log("EDIT victoryDetail VALUE:", this.victoryService.victoryDetail); 
+    // console.log("EDIT closeEditDay + notEmptyEditDay:", this.victoryService.closeEditDay, this.victoryService.notEmptyEditDay);  
     this.editMode = true;
     this.victory = JSON.parse(JSON.stringify(this.originalVictory));
     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.originalVictory.day);
@@ -189,20 +203,21 @@ onAddVictory(form: NgForm) {
   setTimeout(() => (this.addSuccess = false), 2000);
 }
 
-  loadDayVictories() {
-    this.emptydays = false;
-    this.victoryService.emptyDays = this.emptydays;
+  loadDayVictories() { 
+    this.victoryService.emptyDays = false; // to close the Warning message from New Victory when opening without a day selected
     this.victoryService.closeEditDay = true;    
     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
+    this.victoryService.clickedDay = this.victory.day;
     var victories = this.victoriesForDay;     
     // If there are victories for this day → go to edit page
     if (victories && victories.length > 0) {  
       this.victoryService.editDayNavMode = true;
-      this.victoryService.dayNavigation = victories[0].day;         
-      this.router.navigate(['/victories', victories[0].day, victories[0].id, 'edit']);              
-      this.victory = JSON.parse(JSON.stringify(victories[0]));     
+      this.victoryService.dayNavigation = victories[0].day;  // needed for spoofing active background in day navigation in edit page with victories   
+      // this.victory = JSON.parse(JSON.stringify(victories[0])); 
+      this.currentVictoryId = victories[0].id;  
+      this.router.navigate(['/victories', victories[0].day, victories[0].id, 'edit']);
     } else {
-      // If the day is empty → go to empty edit page to add a victory 
+      // If the day is empty → go to empty edit page to add a victory       
       this.victoryService.dayNavigation = "other";        
       this.router.navigate(['/victories/day', this.victory.day || 'new', 'edit']);
     }
@@ -278,6 +293,8 @@ onAddVictory(form: NgForm) {
       this.victoryService.addVictory(this.victory);
       this.currentVictoryId = this.victory.id;
     }
+    console.log("RIGHT SPOT");
+    form.resetForm(); // resets so warning for dirty & untouched don't go off
     // Trigger Saved UI
     this.triggerSaved();
     // Trigger animation
