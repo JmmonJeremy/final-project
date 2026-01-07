@@ -176,7 +176,7 @@ onAddVictory(form: NgForm) {
   }
   // Build new victory object
   const newVictory: Victory = {
-    id: 'To be added by victoryService method updateVictory or addVictory',    // Adjust if you're auto-generating
+    id: 'To be added by victoryService method addVictory',    // Adjust if you're auto-generating
     day: this.victory.day,
     number: this.victory.number,
     victory: this.newVictoryText.trim()
@@ -190,6 +190,9 @@ onAddVictory(form: NgForm) {
   // Refresh the list on UI
   this.victories = this.victoryService.victories;  // FIXED: Use property !!!!!!!!!!!!!!!
   this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
+  // this.currentVictoryId = this.victoriesForDay[0].id; //??????? What does this do ??????????? (not in onAddVictory method)
+  // console.log("ADD VICTORY SPOT currentVictoryId: ", this.victoriesForDay[0].id);
+  // console.log("ADD VICTORY SPOT");
   // Trigger Saved UI
   this.triggerAdded();
   // Trigger animation
@@ -275,26 +278,31 @@ onAddVictory(form: NgForm) {
   onSubmit(form: NgForm) {
     const value = form.value;
     if (this.editMode) {
+      console.log("OnSave - EDIT VICTORY SPOT");
       // Update existing
       this.victory.day = value.day;
       this.victory.number = value.number;
       this.victory.victory = value.victory;
-
       this.victoryService.updateVictory(this.originalVictory, this.victory);
-      this.currentVictoryId = this.originalVictory.id;
+      // Refresh the list on UI
+      // this.victories = this.victoryService.victories;  // FIXED: Use property !!!!!!!!!!!!!!!
+      // this.victoriesForDay = this.victoryService.getVictoriesByDay(this.victory.day);
+      this.currentVictoryId = this.originalVictory.id; // used to keep the edited victory loaded
     } else {
       // Add new
       this.victory = new Victory(
-        'To be added by victoryService method updateVictory or addVictory',
+        'To be added by victoryService method addVictory',
         value.day,
         value.number,
         value.victory  
       ); 
-      this.victoryService.addVictory(this.victory);
-      this.currentVictoryId = this.victory.id;
+      this.victoryService.addVictory(this.victory);   
+      console.log("OnSave - ADD VICTORY SPOT");
     }
-    console.log("RIGHT SPOT");
-    form.resetForm(); // resets so warning for dirty & untouched don't go off
+    // Clear & Refresh Start of victory Input 
+    this.victoryField.control.setValue(''); // clear victory field
+    this.victoryField.control.markAsUntouched(); // stop touched warning styles & message
+    this.victoryField.control.markAsPristine(); // stop invalid styles 
     // Trigger Saved UI
     this.triggerSaved();
     // Trigger animation

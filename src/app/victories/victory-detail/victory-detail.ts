@@ -18,7 +18,8 @@ export class VictoryDetail implements OnInit, OnDestroy {
   selectedVictoryIds: string[] = [];        // store ids, not objects
   selectedDay: DayOfWeek;
   day: DayOfWeek;
-  id: string;
+  id: string; 
+
   private paramsSubscription: Subscription;  // Store outer subscription
   private victoryListSubscription: Subscription;  // Store inner subscription
 
@@ -86,44 +87,46 @@ export class VictoryDetail implements OnInit, OnDestroy {
     this.selectedVictoryIds = [];
   }
 
-  // onDelete: delete selected ids, then wait for service event to refresh and maybe navigate
-  onDelete() {
-    // if (!this.selectedVictoryIds || this.selectedVictoryIds.length === 0) {
-    //   alert("Select at least one victory to delete.");
-    //   return;
-    // }
-    // if (!confirm("Are you sure you want to delete the selected victories?")) {
-    //   return;
-    // }
-    // make a copy of ids to delete
-    const idsToDelete = [...this.selectedVictoryIds];
-    // call delete for each id (find the Victory object and call service)
-    idsToDelete.forEach(id => {
-      const v = this.victoryService.victories.find(x => x.id === id);
-      if (v) {
-        this.victoryService.deleteVictory(v);
-      } else {
-        // if not in memory, you could call a new deleteById; fallback: ignore
-        console.warn('Victory to delete not found in memory:', id);
-      }
-    });
-    // Clear local selection immediately to reflect UI intent
-    this.selectedVictoryIds = [];
-    // Now wait for the next victoryChangedEvent from the service to refresh local list.
-    const sub = this.victoryService.victoryChangedEvent.subscribe(() => {
-      // refresh the list for this day from the service
-      this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
-      // if no victories left for the day, navigate back to the list
-      if (!this.victoriesForDay || this.victoriesForDay.length === 0) {
-        sub.unsubscribe();
-        this.router.navigate(['/victories']);
-        return;
-      }
-      // still have victories: update selection state (cleared already)
-      sub.unsubscribe();
-    });
-  }
+  // // Used befor Chat GPT
+  // // onDelete: delete selected ids, then wait for service event to refresh and maybe navigate
+  // onDelete() {
+  //   // if (!this.selectedVictoryIds || this.selectedVictoryIds.length === 0) {
+  //   //   alert("Select at least one victory to delete.");
+  //   //   return;
+  //   // }
+  //   // if (!confirm("Are you sure you want to delete the selected victories?")) {
+  //   //   return;
+  //   // }
+  //   // make a copy of ids to delete
+  //   const idsToDelete = [...this.selectedVictoryIds];
+  //   // call delete for each id (find the Victory object and call service)
+  //   idsToDelete.forEach(id => {
+  //     const v = this.victoryService.victories.find(x => x.id === id);
+  //     if (v) {
+  //       this.victoryService.deleteVictory(v);
+  //     } else {
+  //       // if not in memory, you could call a new deleteById; fallback: ignore
+  //       console.warn('Victory to delete not found in memory:', id);
+  //     }
+  //   });
+  //   // Clear local selection immediately to reflect UI intent
+  //   this.selectedVictoryIds = [];
+  //   // Now wait for the next victoryChangedEvent from the service to refresh local list.
+  //   const sub = this.victoryService.victoryChangedEvent.subscribe(() => {
+  //     // refresh the list for this day from the service
+  //     this.victoriesForDay = this.victoryService.getVictoriesByDay(this.selectedDay);
+  //     // if no victories left for the day, navigate back to the list
+  //     if (!this.victoriesForDay || this.victoriesForDay.length === 0) {
+  //       sub.unsubscribe();
+  //       this.router.navigate(['/victories']);
+  //       return;
+  //     }
+  //     // still have victories: update selection state (cleared already)
+  //     sub.unsubscribe();
+  //   });
+  // }
 
+// Not in Use
 //   onDelete() {
 //   const ids = [...this.selectedVictoryIds];
 
@@ -140,6 +143,30 @@ export class VictoryDetail implements OnInit, OnDestroy {
 //     }
 //   });
 // }
+
+// PART 3 OF 3 - Chat GPT's Fixed solution:
+  onDelete() {
+    if (!this.selectedVictoryIds.length) return;
+
+    this.victoryService
+      .deleteVictoriesByIds(this.selectedVictoryIds, this.selectedDay)
+      .subscribe(() => {
+        // Remove locally in one pass
+        this.victoryService.victories =
+          this.victoryService.victories.filter(
+            v => !this.selectedVictoryIds.includes(v.id)
+          );
+
+        this.selectedVictoryIds = [];
+
+        this.victoriesForDay =
+          this.victoryService.getVictoriesByDay(this.selectedDay);
+
+        if (this.victoriesForDay.length === 0) {
+          this.router.navigate(['/victories']);
+        }
+      });
+  }
 
   onClose() {    
   this.router.navigate(['/victories']); 

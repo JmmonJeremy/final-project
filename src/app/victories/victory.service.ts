@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, tap } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
@@ -98,53 +98,28 @@ export class VictoryService {
   private reorderVictoryList(targetDay: string): void {
     // Get only the victories for that day
     const daily = this.victories
-      .filter(v => v.day === targetDay)
-      // sort them
+      .filter(v => v.day === targetDay)      
       .sort((a, b) => a.number - b.number);
-    // Renumber them 1..N
+    // Move position to front if duplicate number is inserted 
+    // Only do this for the day you are working on
+    if (daily[0].day === targetDay) {      
+      let index = 0;
+        daily.forEach((victory1) => {        
+          var duplicateCheck = victory1.number;        
+          // move position to front if duplicate number is inserted
+          daily.forEach((victory2) => {   
+          if (daily.indexOf(victory2) > index && victory2.number === duplicateCheck) {            
+            daily.splice(index, 0, victory1);
+            daily.splice(index+2, 1);                    
+          }
+        });
+        index ++
+      });
+    }
+    // Renumber them by ones
     daily.forEach((v, i) => v.number = i + 1);
   }
 
-  /**
- * Reorders numbering within a single day, inserting a victory
- * at its chosen number and shifting others accordingly.
- */
-private reorderByNumberWithinDay(day: string, victoryId: string, requestedNumber: number): void {
-  // 1. Extract victories for that day in sorted order
-  let sameDay = this.victories
-    .filter(v => v.day === day)
-    .sort((a, b) => a.number - b.number);
-
-  const otherDays = this.victories.filter(v => v.day !== day);
-
-  // If the list is empty, nothing to do
-  if (!sameDay.length) return;
-
-  // 2. Remove the targeted victory from the list
-  const index = sameDay.findIndex(v => v.id === victoryId);
-  if (index === -1) return;
-
-  const [removed] = sameDay.splice(index, 1);
-
-  // 3. Compute the insertion index based on requestedNumber
-  const insertIndex = Math.max(
-    0,
-    Math.min(requestedNumber - 1, sameDay.length) // cap at end
-  );
-
-  // 4. Insert the victory back into the target slot
-  sameDay.splice(insertIndex, 0, removed);
-
-  // 5. Renumber sequentially 1..N
-  sameDay = sameDay.map((v, idx) => {
-    v.number = idx + 1;
-    return v;
-  });
-
-  // 6. Merge back into main list
-  this.victories = [...sameDay, ...otherDays];
-}
-  
   private persistReorderedVictories(day: string): void {
     const daily = this.victories.filter(v => v.day === day);
 
@@ -205,14 +180,48 @@ private reorderByNumberWithinDay(day: string, victoryId: string, requestedNumber
           // replace victory with new version
           this.victories[pos] = newVictory;
           // reassign numbering within a day by passing in the day
-          //  this.reorderVictoryList(newVictory.day);
+           this.reshuffleVictoryList(newVictory.day, newVictory);
           // // save the change to the database
-          // this.persistReorderedVictories(newVictory.day);
+          this.persistReorderedVictories(newVictory.day);
           // now update sorting + emit
           this.sortThenSend();
         }
       );
   }
+
+  private reshuffleVictoryList(targetDay: string, editedVictory: Victory): void {
+    // Get only the victories for that day & leave out altered victory
+    const daily = this.victories    
+      .filter(v => v.day === targetDay && v.id !== editedVictory.id)      
+      .sort((a, b) => a.number - b.number);
+    // Set index for inserting editedVictory
+    const targetIndex = editedVictory.number - 1;  
+    // Insert at desired position
+    daily.splice(targetIndex, 0, editedVictory);
+    // Renumber them by ones
+    daily.forEach((v, i) => v.number = i + 1);   
+  }
+
+  // PART 2 OF 3 - Chat GPT's Fixed solution:
+  deleteVictoriesByIds(ids: string[], day: string) {
+    return this.http.delete<{ deletedCount: number }>(
+      `${environment.apiUrl}/victories`,
+      {
+        body: { ids }
+      }
+    ).pipe(
+      tap(() => {
+        // Remove locally
+        this.victories = this.victories.filter(v => !ids.includes(v.id));
+        // Renumber list
+        this.reorderVictoryList(day);
+        this.persistReorderedVictories(day);
+        // Emit changes to the Day list
+        this.sortThenSend();
+      })
+    );
+  }
+
 
   deleteVictory(victory: Victory) {
     if (!victory) {
@@ -231,4 +240,6 @@ private reorderByNumberWithinDay(day: string, victoryId: string, requestedNumber
         }
       );
   }
+
+  
 }

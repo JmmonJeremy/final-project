@@ -70,30 +70,53 @@ router.put('/:id', (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
-  Victory.findOne({ id: req.params.id })
-    .then(victory => {
-      Victory.deleteOne({ id: req.params.id })
-        .then(result => {
-          res.status(204).json({
-            message: "Victory deleted successfully"
-          });
-        })
-        .catch(error => {
-           res.status(500).json({
-           message: 'An error occurred',
-           error: error
-         });
-        })
-    })
-    .catch(error => {
-      res.status(500).json({
-        message: 'Victory not found.',
-        error: { victory: 'Victory not found'}
-      });
-    });
-});
+// // Used befor Chat GPT
+// router.delete("/:id", (req, res, next) => {
+//   Victory.findOne({ id: req.params.id })
+//     .then(victory => {
+//       Victory.deleteOne({ id: req.params.id })
+//         .then(result => {
+//           res.status(204).json({
+//             message: "Victory deleted successfully"
+//           });
+//         })
+//         .catch(error => {
+//            res.status(500).json({
+//            message: 'An error occurred',
+//            error: error
+//          });
+//         })
+//     })
+//     .catch(error => {
+//       res.status(500).json({
+//         message: 'Victory not found.',
+//         error: { victory: 'Victory not found'}
+//       });
+//     });
+// });
 
+// PART 1 OF 3 - Chat GPT's bugged sulution:
+router.delete("/", async (req, res) => {
+  const { ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ message: "No victory IDs provided" });
+  }
+
+  try {
+    const result = await Victory.deleteMany({ id: { $in: ids } });
+
+    res.status(200).json({
+      message: "Victories deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Bulk delete failed",
+      error
+    });
+  }
+});
 
 module.exports = router; 
 
