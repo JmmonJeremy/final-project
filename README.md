@@ -1,6 +1,6 @@
 # Render Deployment: <a href="https://final-project.onrender.com/documents" target="_blank">Wk12-14 11th Assignment Final Project</a>
 # Angular Contacts Application Final Assignment
-Repository for my BYUI WDD 430 Web Full-Stack Development class
+(TO BE USED FOR APP BASE) Repository for my BYUI WDD 430 Web Full-Stack Development Final Project of my Weekly Victory App
 # ProjectTemplate
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
